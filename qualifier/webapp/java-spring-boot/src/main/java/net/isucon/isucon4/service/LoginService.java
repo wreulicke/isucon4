@@ -24,7 +24,6 @@
 
 package net.isucon.isucon4.service;
 
-import com.google.common.base.Objects;
 import com.google.common.primitives.Bytes;
 import net.isucon.isucon4.ThresholdConfig;
 import net.isucon.isucon4.entity.User;
@@ -38,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -66,7 +66,7 @@ public class LoginService {
 
             user.ifPresent(u -> {
                 String hash = calculatePasswordHash(password, u.getSalt());
-                if (Objects.equal(u.getPasswordHash(), hash)) {
+                if (Objects.equals(u.getPasswordHash(), hash)) {
                     loggingRepository.create(true, login, ip, user);
                 } else {
                     throw new BusinessException("Wrong username or password");
