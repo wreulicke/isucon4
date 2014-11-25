@@ -75,4 +75,40 @@ public class AppConfig {
             }
         };
     }
+
+//    /**
+//     * Jettyカスタマイズ
+//     */
+//    @Bean
+//    public EmbeddedServletContainerFactory jettyEmbeddedServletContainerFactory(
+//            @Value("${jetty.threadPool.minThreads:8}") int minThreads,
+//            @Value("${jetty.threadPool.maxThreads:200}") int maxThreads,
+//            @Value("${jetty.threadPool.idleTimeout:60000}") int idleTimeout) {
+//
+//        JettyEmbeddedServletContainerFactory factory = new JettyEmbeddedServletContainerFactory();
+//        factory.addServerCustomizers(new JettyServerCustomizer() {
+//            @Override
+//            public void customize(Server server) {
+//                QueuedThreadPool threadPool = server.getBean(QueuedThreadPool.class);
+//                threadPool.setMaxThreads(maxThreads);
+//                threadPool.setMinThreads(minThreads);
+//                threadPool.setIdleTimeout(idleTimeout);
+//            }
+//        });
+//
+//        return factory;
+//    }
+
+//    /**
+//     * Undertowカスタマイズ
+//     */
+//    @Bean
+//    public EmbeddedServletContainerFactory undertowEmbeddedServletContainerFactory(
+//            @Value("${undertow.builder.workerThreads:200}") int workerThreads) {
+//
+//        UndertowEmbeddedServletContainerFactory factory = new UndertowEmbeddedServletContainerFactory();
+//        factory.setWorkerThreads(workerThreads);
+//
+//        return factory;
+//    }
 }
