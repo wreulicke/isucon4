@@ -25,11 +25,9 @@
 package net.isucon.isucon4;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -51,7 +49,6 @@ public class AppConfig {
     DataSourceProperties properties;
 
     @Bean(destroyMethod = "close")
-    @ConfigurationProperties(prefix = DataSourceAutoConfiguration.CONFIGURATION_PREFIX)
     DataSource dataSource() {
         DataSourceBuilder factory = DataSourceBuilder
                 .create(this.properties.getClassLoader())
