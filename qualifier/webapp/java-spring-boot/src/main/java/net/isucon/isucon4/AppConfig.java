@@ -25,7 +25,7 @@
 package net.isucon.isucon4;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
@@ -45,18 +45,97 @@ import java.util.Set;
 @EnableTransactionManagement
 public class AppConfig {
 
+    @Value("${spring.datasource.initial-size:16}")
+    int initialSize;
+
+    @Value("${spring.datasource.min-idle:32}")
+    int minIdle;
+
+    @Value("${spring.datasource.max-idle:200}")
+    int maxIdle;
+
+    @Value("${spring.datasource.max-active:200}")
+    int maxActive;
+
     @Autowired
     DataSourceProperties properties;
 
+    /**
+     * Tomcat JDBC Connection Pool
+     */
     @Bean(destroyMethod = "close")
-    DataSource dataSource() {
-        DataSourceBuilder factory = DataSourceBuilder
-                .create(this.properties.getClassLoader())
-                .url(this.properties.getUrl())
-                .username(this.properties.getUsername())
-                .password(this.properties.getPassword());
-        return factory.build();
+    public DataSource dataSource() {
+
+        org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
+        ds.setDriverClassName(properties.getDriverClassName());
+        ds.setUrl(properties.getUrl());
+        ds.setUsername(properties.getUsername());
+        ds.setPassword(properties.getPassword());
+        ds.setDefaultAutoCommit(false);
+        ds.setInitialSize(initialSize);
+        ds.setMinIdle(minIdle);
+        ds.setMaxIdle(maxIdle);
+        ds.setMaxActive(maxActive);
+
+        return ds;
     }
+
+//    /**
+//     * HikariCP
+//     */
+//    @Bean(destroyMethod = "close")
+//    public DataSource dataSource() {
+//
+//        HikariDataSource ds = new HikariDataSource();
+//        ds.setDriverClassName(properties.getDriverClassName());
+//        ds.setJdbcUrl(properties.getUrl());
+//        ds.setUsername(properties.getUsername());
+//        ds.setPassword(properties.getPassword());
+//        ds.setAutoCommit(false);
+//        ds.setMaximumPoolSize(maxActive);
+//
+//        return ds;
+//    }
+
+//    /**
+//     * Commons DBCP
+//     */
+//    @Bean(destroyMethod = "close")
+//    public DataSource dataSource() {
+//
+//        BasicDataSource ds = new BasicDataSource();
+//        ds.setDriverClassName(properties.getDriverClassName());
+//        ds.setUrl(properties.getUrl());
+//        ds.setUsername(properties.getUsername());
+//        ds.setPassword(properties.getPassword());
+//        ds.setDefaultAutoCommit(false);
+//        ds.setInitialSize(initialSize);
+//        ds.setMinIdle(minIdle);
+//        ds.setMaxIdle(maxIdle);
+//        ds.setMaxActive(maxActive);
+//
+//        return ds;
+//    }
+
+//    /**
+//     * Commons DBCP2
+//     */
+//    @Bean(destroyMethod = "close")
+//    public DataSource dataSource() {
+//
+//        BasicDataSource ds = new BasicDataSource();
+//        ds.setDriverClassName(properties.getDriverClassName());
+//        ds.setUrl(properties.getUrl());
+//        ds.setUsername(properties.getUsername());
+//        ds.setPassword(properties.getPassword());
+//        ds.setDefaultAutoCommit(false);
+//        ds.setInitialSize(initialSize);
+//        ds.setMinIdle(minIdle);
+//        ds.setMaxIdle(maxIdle);
+//        ds.setMaxTotal(maxActive);
+//
+//        return ds;
+//    }
 
     @Bean
     public PlatformTransactionManager transactionManager() {
