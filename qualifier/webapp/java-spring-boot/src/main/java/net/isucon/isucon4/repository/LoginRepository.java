@@ -24,68 +24,23 @@
 
 package net.isucon.isucon4.repository;
 
+import net.isucon.isucon4.RepositoryConfig;
 import net.isucon.isucon4.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Repository;
+import org.seasar.doma.Dao;
+import org.seasar.doma.Select;
 
 import java.util.Optional;
 
-@Repository
-public class LoginRepository {
+@Dao
+@RepositoryConfig
+public interface LoginRepository {
 
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
+    @Select
+    Optional<User> findUserByLogin(String login);
 
-    RowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
+    @Select
+    long countBannedIp(String ip);
 
-    public Optional<User> findUserByLogin(String login) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("login", login);
-
-        User user = null;
-
-        try {
-            user = jdbcTemplate.queryForObject(
-                    "SELECT * FROM users WHERE login = :login",
-                    param,
-                    rowMapper);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable(user);
-    }
-
-    public long countBannedIp(String ip) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("ip", ip);
-        long failures = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS failures FROM login_log " +
-                        "WHERE ip = :ip AND id > IFNULL((select id from login_log where ip = :ip AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)",
-                param,
-                Long.class);
-
-        return failures;
-    }
-
-    public long countLockedUser(int userId) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("userId", userId);
-        long failures = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS failures FROM login_log " +
-                        "WHERE user_id = :userId AND id > IFNULL((select id from login_log where user_id = :userId AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)",
-                param,
-                Long.class);
-
-        return failures;
-    }
+    @Select
+    long countLockedUser(int userId);
 }

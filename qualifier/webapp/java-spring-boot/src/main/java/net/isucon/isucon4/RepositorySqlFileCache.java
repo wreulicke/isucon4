@@ -22,35 +22,35 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.repository;
+package net.isucon.isucon4;
 
-import net.isucon.isucon4.RepositoryConfig;
-import net.isucon.isucon4.entity.LoginLog;
-import org.seasar.doma.Dao;
-import org.seasar.doma.jdbc.Config;
-import org.seasar.doma.jdbc.builder.SelectBuilder;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import org.seasar.doma.jdbc.AbstractSqlFileRepository;
+import org.seasar.doma.jdbc.SqlFile;
+import org.seasar.doma.jdbc.dialect.Dialect;
 
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
-@Dao
-@RepositoryConfig
-public interface MyPageRepository {
+public class RepositorySqlFileCache extends AbstractSqlFileRepository {
 
-    default Optional<LoginLog> findLoginLogByUserId(int userId) {
+    Cache<String, SqlFile> cache = CacheBuilder.newBuilder()
+            .maximumSize(1_000_000)
+            .expireAfterWrite(600, TimeUnit.MINUTES)
+            .expireAfterAccess(600, TimeUnit.MINUTES)
+            .build();
 
-        Config config = Config.get(this);
-        SelectBuilder builder = SelectBuilder.newInstance(config);
-
-        builder.sql("SELECT * FROM login_log WHERE succeeded = 1 AND user_id = ")
-                .param(int.class, userId)
-                .sql(" ORDER BY id DESC LIMIT 2");
-
-        List<LoginLog> loginLogs = builder.getEntityResultList(LoginLog.class);
-        if (loginLogs.isEmpty()) {
-            return Optional.empty();
-        } else {
-            return Optional.ofNullable(loginLogs.get(loginLogs.size() - 1));
+    @Override
+    protected SqlFile getSqlFileWithCacheControl(Method method, String path, Dialect dialect) {
+        SqlFile file = cache.getIfPresent(path);
+        if (file != null) {
+            return file;
         }
+
+        file = createSqlFile(path, dialect);
+        cache.put(path, file);
+
+        return file;
     }
 }

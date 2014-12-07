@@ -25,93 +25,58 @@
 package net.isucon.isucon4.repository;
 
 import javafx.util.Pair;
+import net.isucon.isucon4.RepositoryConfig;
 import net.isucon.isucon4.model.IpLastSucceeds;
 import net.isucon.isucon4.model.UserNotSucceeds;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SingleColumnRowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Repository;
+import org.seasar.doma.Dao;
+import org.seasar.doma.Select;
+import org.seasar.doma.jdbc.Config;
+import org.seasar.doma.jdbc.builder.SelectBuilder;
 
 import java.util.List;
 
-@Repository
-public class ReportRepository {
+@Dao
+@RepositoryConfig
+public interface ReportRepository {
 
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
+    @Select
+    List<String> getBannedIpsNotSucceed(int threshold);
 
-    RowMapper<String> rowStringMapper = new SingleColumnRowMapper<>(String.class);
+    @Select
+    List<IpLastSucceeds> getBannedIpsLastSucceed();
 
-    RowMapper<IpLastSucceeds> rowIpLastSucceedsMapper = new BeanPropertyRowMapper<>(IpLastSucceeds.class);
+    default Pair<String, Long> getBannedIpsLastSucceedCounts(IpLastSucceeds ipLastSucceeds) {
 
-    RowMapper<UserNotSucceeds> rowUserNotSucceedsMapper = new BeanPropertyRowMapper<>(UserNotSucceeds.class);
+        Config config = Config.get(this);
+        SelectBuilder builder = SelectBuilder.newInstance(config);
 
-    public List<String> getBannedIpsNotSucceed(int threshold) {
+        builder.sql("SELECT COUNT(1) AS cnt FROM login_log WHERE ip = ")
+                .param(String.class, ipLastSucceeds.getIp())
+                .sql(" AND id >")
+                .param(int.class, ipLastSucceeds.getLastLoginId());
 
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("threshold", threshold);
-
-        List<String> list = jdbcTemplate.query(
-                "SELECT ip FROM (SELECT ip, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY ip) AS t0 WHERE t0.max_succeeded = 0 AND t0.cnt >= :threshold",
-                param,
-                rowStringMapper);
-
-        return list;
-    }
-
-    public List<IpLastSucceeds> getBannedIpsLastSucceed() {
-        return jdbcTemplate.query(
-                "SELECT ip, MAX(id) AS last_login_id FROM login_log WHERE succeeded = 1 GROUP by ip",
-                rowIpLastSucceedsMapper);
-    }
-
-    public Pair<String, Long> getBannedIpsLastSucceedCounts(IpLastSucceeds ipLastSucceeds) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("ip", ipLastSucceeds.getIp())
-                .addValue("last_login_id", ipLastSucceeds.getLastLoginId());
-
-        Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS cnt FROM login_log WHERE ip = :ip AND :last_login_id < id",
-                param,
-                Long.class);
+        Long count = builder.getScalarSingleResult(Long.class);
 
         return new Pair<>(ipLastSucceeds.getIp(), count);
     }
 
-    public List<String> getLockedUsersNotSucceed(int threshold) {
+    @Select
+    List<String> getLockedUsersNotSucceed(int threshold);
 
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("threshold", threshold);
+    @Select
+    List<UserNotSucceeds> getLockedUsersLastSucceed();
 
-        List<String> list = jdbcTemplate.query(
-                "SELECT login FROM (SELECT user_id, login, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY user_id) AS t0 WHERE t0.user_id IS NOT NULL AND t0.max_succeeded = 0 AND t0.cnt >= :threshold",
-                param,
-                rowStringMapper);
+    default Pair<String, Long> getLockedUsersLastSucceedCounts(UserNotSucceeds userNotSucceeds) {
 
-        return list;
-    }
+        Config config = Config.get(this);
+        SelectBuilder builder = SelectBuilder.newInstance(config);
 
-    public List<UserNotSucceeds> getLockedUsersLastSucceed() {
-        return jdbcTemplate.query(
-                "SELECT user_id, login, MAX(id) AS last_login_id FROM login_log WHERE user_id IS NOT NULL AND succeeded = 1 GROUP BY user_id",
-                rowUserNotSucceedsMapper);
-    }
+        builder.sql("SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = ")
+                .param(int.class, userNotSucceeds.getUserId())
+                .sql(" AND id >")
+                .param(int.class, userNotSucceeds.getLastLoginId());
 
-    public Pair<String, Long> getLockedUsersLastSucceedCounts(UserNotSucceeds userNotSucceeds) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("user_id", userNotSucceeds.getUserId())
-                .addValue("last_login_id", userNotSucceeds.getLastLoginId());
-
-        Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = :user_id AND :last_login_id < id",
-                param,
-                Long.class);
+        Long count = builder.getScalarSingleResult(Long.class);
 
         return new Pair<>(userNotSucceeds.getLogin(), count);
     }

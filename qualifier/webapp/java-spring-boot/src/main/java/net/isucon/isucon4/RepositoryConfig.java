@@ -22,35 +22,16 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.repository;
+package net.isucon.isucon4;
 
-import net.isucon.isucon4.RepositoryConfig;
-import net.isucon.isucon4.entity.LoginLog;
-import org.seasar.doma.Dao;
-import org.seasar.doma.jdbc.Config;
-import org.seasar.doma.jdbc.builder.SelectBuilder;
+import org.seasar.doma.AnnotateWith;
+import org.seasar.doma.Annotation;
+import org.seasar.doma.AnnotationTarget;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
-@Dao
-@RepositoryConfig
-public interface MyPageRepository {
-
-    default Optional<LoginLog> findLoginLogByUserId(int userId) {
-
-        Config config = Config.get(this);
-        SelectBuilder builder = SelectBuilder.newInstance(config);
-
-        builder.sql("SELECT * FROM login_log WHERE succeeded = 1 AND user_id = ")
-                .param(int.class, userId)
-                .sql(" ORDER BY id DESC LIMIT 2");
-
-        List<LoginLog> loginLogs = builder.getEntityResultList(LoginLog.class);
-        if (loginLogs.isEmpty()) {
-            return Optional.empty();
-        } else {
-            return Optional.ofNullable(loginLogs.get(loginLogs.size() - 1));
-        }
-    }
+@AnnotateWith(annotations = {
+        @Annotation(target = AnnotationTarget.CLASS, type = Repository.class),
+        @Annotation(target = AnnotationTarget.CONSTRUCTOR, type = Autowired.class)})
+public @interface RepositoryConfig {
 }

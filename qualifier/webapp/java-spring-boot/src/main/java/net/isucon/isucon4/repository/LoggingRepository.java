@@ -24,35 +24,35 @@
 
 package net.isucon.isucon4.repository;
 
+import net.isucon.isucon4.RepositoryConfig;
 import net.isucon.isucon4.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Repository;
+import org.seasar.doma.Dao;
+import org.seasar.doma.jdbc.Config;
+import org.seasar.doma.jdbc.builder.InsertBuilder;
 
 import java.util.Date;
 import java.util.Optional;
 
-@Repository
-public class LoggingRepository {
+@Dao
+@RepositoryConfig
+public interface LoggingRepository {
 
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
+    default void create(boolean succeeded, String login, String ip, Optional<User> user) {
 
-    public void create(boolean succeeded, String login, String ip, Optional<User> user) {
+        Config config = Config.get(this);
+        InsertBuilder builder = InsertBuilder.newInstance(config);
 
         Integer userId = user.isPresent() ? user.get().getId() : null;
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("createdAt", new Date())
-                .addValue("userId", userId)
-                .addValue("login", login)
-                .addValue("ip", ip)
-                .addValue("succeeded", succeeded);
 
-        jdbcTemplate.update(
-                "INSERT INTO login_log(created_at, user_id, login, ip, succeeded)" +
-                        " values (:createdAt, :userId, :login, :ip, :succeeded)",
-                param);
+        builder.sql("INSERT INTO login_log")
+                .sql("(created_at, user_id, login, ip, succeeded) values (")
+                .param(Date.class, new Date()).sql(", ")
+                .param(Integer.class, userId).sql(", ")
+                .param(String.class, login).sql(", ")
+                .param(String.class, ip).sql(", ")
+                .param(boolean.class, succeeded)
+                .sql(")");
+
+        builder.execute();
     }
 }

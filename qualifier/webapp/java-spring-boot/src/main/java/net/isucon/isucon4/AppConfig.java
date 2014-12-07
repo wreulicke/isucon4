@@ -24,6 +24,13 @@
 
 package net.isucon.isucon4;
 
+import org.seasar.doma.jdbc.Config;
+import org.seasar.doma.jdbc.SqlFileRepository;
+import org.seasar.doma.jdbc.UnknownColumnHandler;
+import org.seasar.doma.jdbc.dialect.Dialect;
+import org.seasar.doma.jdbc.dialect.PostgresDialect;
+import org.seasar.doma.jdbc.entity.EntityType;
+import org.seasar.doma.jdbc.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -31,6 +38,7 @@ import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -190,4 +198,48 @@ public class AppConfig {
 //
 //        return factory;
 //    }
+
+    @Bean
+    public Dialect dialect() {
+        return new PostgresDialect();
+    }
+
+    @Bean
+    public Config domaConfig() {
+        return new DomaConfig();
+    }
+
+    public class DomaConfig implements Config {
+
+        @Override
+        public Dialect getDialect() {
+            return dialect();
+        }
+
+        @Override
+        public DataSource getDataSource() {
+            return new TransactionAwareDataSourceProxy(dataSource());
+        }
+
+        @Override
+        public int getQueryTimeout() {
+            // 単位: 秒
+            return 300;
+        }
+
+        @Override
+        public UnknownColumnHandler getUnknownColumnHandler() {
+            return new UnknownColumnHandler() {
+                @Override
+                public void handle(Query query, EntityType<?> entityType, String unknownColumnName) {
+                    // ignore
+                }
+            };
+        }
+
+        @Override
+        public SqlFileRepository getSqlFileRepository() {
+            return new RepositorySqlFileCache();
+        }
+    }
 }
