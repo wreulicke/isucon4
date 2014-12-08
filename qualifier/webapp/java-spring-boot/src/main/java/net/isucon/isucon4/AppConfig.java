@@ -68,6 +68,8 @@ public class AppConfig {
     @Autowired
     DataSourceProperties properties;
 
+    SqlFileRepository repositorySqlFileCache = new RepositorySqlFileCache();
+
     /**
      * Tomcat JDBC Connection Pool
      */
@@ -239,7 +241,7 @@ public class AppConfig {
 
         @Override
         public SqlFileRepository getSqlFileRepository() {
-            return new RepositorySqlFileCache();
+            return repositorySqlFileCache;
         }
     }
 }
