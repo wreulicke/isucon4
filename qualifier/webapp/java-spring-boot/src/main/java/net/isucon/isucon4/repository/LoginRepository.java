@@ -27,7 +27,8 @@ package net.isucon.isucon4.repository;
 import net.isucon.isucon4.RepositoryConfig;
 import net.isucon.isucon4.entity.User;
 import org.seasar.doma.Dao;
-import org.seasar.doma.Select;
+import org.seasar.doma.jdbc.Config;
+import org.seasar.doma.jdbc.builder.SelectBuilder;
 
 import java.util.Optional;
 
@@ -35,12 +36,46 @@ import java.util.Optional;
 @RepositoryConfig
 public interface LoginRepository {
 
-    @Select
-    Optional<User> findUserByLogin(String login);
+    default Optional<User> findUserByLogin(String login) {
 
-    @Select
-    long countBannedIp(String ip);
+        Config config = Config.get(this);
+        SelectBuilder builder = SelectBuilder.newInstance(config);
 
-    @Select
-    long countLockedUser(int userId);
+        builder.sql("SELECT * FROM users WHERE login = ")
+                .param(String.class, login);
+
+        Optional<User> user = builder.getOptionalEntitySingleResult(User.class);
+
+        return user;
+    }
+
+    default long countBannedIp(String ip) {
+
+        Config config = Config.get(this);
+        SelectBuilder builder = SelectBuilder.newInstance(config);
+
+        builder.sql("SELECT COUNT(1) AS failures FROM login_log ")
+                .sql("WHERE ip = ").param(String.class, ip)
+                .sql("  AND id > IFNULL((select id from login_log where ip = ").param(String.class, ip)
+                .sql("  AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)");
+
+        long count = builder.getScalarSingleResult(long.class);
+
+        return count;
+    }
+
+    default long countLockedUser(int userId) {
+
+        Config config = Config.get(this);
+        SelectBuilder builder = SelectBuilder.newInstance(config);
+
+        builder.sql("SELECT COUNT(1) AS failures FROM login_log ")
+                .sql("WHERE user_id = ").param(int.class, userId)
+                .sql("  AND id > IFNULL((select id from login_log where user_id = ").param(int.class, userId)
+                .sql("  AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)");
+
+        long count = builder.getScalarSingleResult(long.class);
+
+        return count;
+    }
 }
