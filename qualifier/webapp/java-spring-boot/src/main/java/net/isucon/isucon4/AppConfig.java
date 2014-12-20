@@ -25,8 +25,10 @@
 package net.isucon.isucon4;
 
 import org.seasar.doma.jdbc.Config;
+import org.seasar.doma.jdbc.JdbcLogger;
 import org.seasar.doma.jdbc.SqlFileRepository;
 import org.seasar.doma.jdbc.UnknownColumnHandler;
+import org.seasar.doma.jdbc.UtilLoggingJdbcLogger;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.PostgresDialect;
 import org.seasar.doma.jdbc.entity.EntityType;
@@ -48,6 +50,7 @@ import javax.servlet.SessionTrackingMode;
 import javax.sql.DataSource;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 @Configuration
 @EnableTransactionManagement
@@ -242,6 +245,11 @@ public class AppConfig {
         @Override
         public SqlFileRepository getSqlFileRepository() {
             return repositorySqlFileCache;
+        }
+
+        @Override
+        public JdbcLogger getJdbcLogger() {
+            return new UtilLoggingJdbcLogger(Level.FINE);
         }
     }
 }
