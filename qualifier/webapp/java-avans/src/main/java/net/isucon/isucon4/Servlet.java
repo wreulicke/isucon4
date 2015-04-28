@@ -27,7 +27,7 @@ public class Servlet extends HttpServlet {
                 this.buildModule(getServletConfig()),
                 new WebModule(getServletContext()));
         dispatcher = new Dispatcher(injector);
-        dispatcher.registerPackage(net.isucon.isucon4.controller.RootController.class.getPackage());
+        dispatcher.registerPackage(net.isucon.isucon4.controller.LoginController.class.getPackage());
     }
 
     private BasicModule buildModule(ServletConfig servletConfig) {

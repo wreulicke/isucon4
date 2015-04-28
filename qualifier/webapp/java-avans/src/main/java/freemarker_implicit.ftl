@@ -1,3 +1,3 @@
 [#ftl]
 [#-- @implicitly included --]
-[#-- @ftlvariable name="helper" type="me.geso.${artifactId}.view.Helper" --]
+[#-- @ftlvariable name="helper" type="net.isucon.isucon4.view.Helper" --]

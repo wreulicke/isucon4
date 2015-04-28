@@ -1,6 +1,6 @@
 ---
 development: true
 jdbc:
-  url: jdbc:mysql://localhost/test
+  url: jdbc:mysql://localhost/test?characterEncoding=utf8&cacheServerConfiguration=true
   username: root
   password:

@@ -3,18 +3,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>net.isucon.isucon4</groupId>
     <artifactId>java-avans</artifactId>
     <version>1.0.0</version>
-    <name>sample</name>
-    <description>sample</description>
+
     <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <avans.version>1.7.0</avans.version>
-        <tomcat.version>7.0.56</tomcat.version>
+        <avans.version>1.14.0</avans.version>
+        <tomcat.version>8.0.21</tomcat.version>
         <freemarker.version>2.3.20</freemarker.version>
     </properties>
 
@@ -23,11 +23,32 @@
             <groupId>me.geso</groupId>
             <artifactId>avans</artifactId>
             <version>${avans.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>1.7.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.7.6</version>
         </dependency>
 
         <dependency>
@@ -85,7 +106,7 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>4.0-beta5</version>
+            <version>4.0</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -96,11 +117,18 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.34</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.geso</groupId>
             <artifactId>tinyorm</artifactId>
-            <version>1.0.1</version>
+            <version>1.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

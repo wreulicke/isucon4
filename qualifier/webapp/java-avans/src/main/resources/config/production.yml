@@ -1,7 +1,6 @@
 ---
 development: false
 jdbc:
-  url: jdbc:mysql://localhost/test
-  username: root
-  password:
-
+  url: jdbc:mysql://localhost/isu4_qualifier?characterEncoding=utf8&cacheServerConfiguration=true
+  username: isucon
+  password: isucon
