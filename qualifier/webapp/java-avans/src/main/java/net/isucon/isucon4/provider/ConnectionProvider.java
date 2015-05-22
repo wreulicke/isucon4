@@ -1,5 +1,7 @@
 package net.isucon.isucon4.provider;
 
+import com.google.common.base.Strings;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import net.isucon.isucon4.config.Config;
 
@@ -7,7 +9,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.Closeable;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
@@ -18,30 +19,35 @@ import java.sql.SQLException;
 @Slf4j
 public class ConnectionProvider implements Provider<Connection>, Closeable {
 
-    static {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    static final int MAXIMUM_POOL_SIZE =
+            System.getProperty("maximumPoolSize") != null
+                    ? Integer.parseInt(System.getProperty("maximumPoolSize"))
+                    : 200;
 
+    private static final HikariDataSource dataSource = new HikariDataSource();
     private final Config config;
     private Connection connection;
 
     @Inject
     public ConnectionProvider(Config config) {
         this.config = config;
+
+        if (Strings.isNullOrEmpty(dataSource.getDriverClassName())) {
+
+            dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+            dataSource.setJdbcUrl(config.getJdbc().getUrl());
+            dataSource.setUsername(config.getJdbc().getUsername());
+            dataSource.setPassword(config.getJdbc().getPassword());
+            dataSource.setAutoCommit(false);
+            dataSource.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+        }
     }
 
     public Connection get() {
         try {
-            log.debug("Creating new JDBC connection: {}", config.getJdbc().getUrl());
-            this.connection = DriverManager.getConnection(
-                    config.getJdbc().getUrl(),
-                    config.getJdbc().getUsername(),
-                    config.getJdbc().getPassword());
-            return this.connection;
+            log.debug("Get JDBC connection from pool: {}", config.getJdbc().getUrl());
+            connection = dataSource.getConnection();
+            return connection;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
