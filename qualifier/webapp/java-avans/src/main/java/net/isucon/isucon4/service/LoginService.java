@@ -35,13 +35,11 @@ import net.isucon.isucon4.row.LoginLog;
 import net.isucon.isucon4.row.User;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
-@Singleton
 public class LoginService {
 
     @Inject

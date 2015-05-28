@@ -29,17 +29,15 @@ import net.isucon.isucon4.row.LoginLog;
 import net.isucon.isucon4.row.User;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Singleton
 public class LoginRepository {
 
     @Inject
-    private TinyORM orm;
+    TinyORM orm;
 
     public Optional<User> findUserByLogin(String login) {
         return orm.singleBySQL(User.class,

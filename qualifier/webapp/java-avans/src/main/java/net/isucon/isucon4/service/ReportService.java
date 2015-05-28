@@ -31,13 +31,11 @@ import net.isucon.isucon4.row.LoginLog;
 import net.isucon.isucon4.row.User;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Singleton
 public class ReportService {
 
     @Inject

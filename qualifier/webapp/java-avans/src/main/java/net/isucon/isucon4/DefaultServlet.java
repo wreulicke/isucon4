@@ -22,25 +22,10 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.repository;
+package net.isucon.isucon4;
 
-import me.geso.tinyorm.TinyORM;
-import net.isucon.isucon4.row.User;
+import javax.inject.Singleton;
 
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Date;
-
-public class LoggingRepository {
-
-    @Inject
-    TinyORM orm;
-
-    public void create(boolean succeeded, String login, String ip, User user) {
-        Integer userId = user != null ? user.getId() : null;
-        orm.updateBySQL(
-                "INSERT INTO login_log(created_at, user_id, login, ip, succeeded)" +
-                        " values (?, ?, ?, ?, ?)",
-                Arrays.asList(new Date(), userId, login, ip, succeeded));
-    }
+@Singleton
+public class DefaultServlet extends org.apache.catalina.servlets.DefaultServlet {
 }

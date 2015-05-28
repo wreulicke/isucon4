@@ -1,15 +1,18 @@
 package net.isucon.isucon4;
 
 import com.google.inject.Injector;
+import lombok.extern.slf4j.Slf4j;
 import me.geso.avans.Controller;
-import net.isucon.isucon4.module.WebRequestScopedModule;
-import net.isucon.isucon4.provider.ConnectionProvider;
+import me.geso.tinyorm.TinyORM;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
+@Slf4j
 public class Dispatcher extends me.geso.avans.Dispatcher {
     private final Injector injector;
 
@@ -23,14 +26,21 @@ public class Dispatcher extends me.geso.avans.Dispatcher {
             final Method method, final HttpServletRequest request,
             final HttpServletResponse response,
             final Map<String, String> captured) {
-        // Close connection provider after work.
-        try (ConnectionProvider connectionProvider = injector.getInstance(ConnectionProvider.class)) {
-            final WebRequestScopedModule webModule = new WebRequestScopedModule(request, connectionProvider);
-            final Injector childInjector = injector.createChildInjector(webModule);
-            try (Controller controller = childInjector.getInstance(controllerClass)) {
-                controller.invoke(method, request, response, captured);
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
+
+        Connection connection = null;
+
+        try (Controller controller = injector.getInstance(controllerClass)) {
+            connection = injector.getInstance(TinyORM.class).getConnection();
+            controller.invoke(method, request, response, captured);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Connection close error!", e);
             }
         }
     }

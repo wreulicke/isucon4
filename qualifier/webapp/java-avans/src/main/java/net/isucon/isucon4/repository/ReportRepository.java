@@ -30,15 +30,13 @@ import net.isucon.isucon4.row.LoginLog;
 import net.isucon.isucon4.row.User;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 
-@Singleton
 public class ReportRepository {
 
     @Inject
-    private TinyORM orm;
+    TinyORM orm;
 
     public List<LoginLog> getBannedIpsNotSucceed(int threshold) {
         return orm.searchBySQL(

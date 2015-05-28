@@ -25,24 +25,27 @@
 package net.isucon.isucon4.database;
 
 import lombok.extern.slf4j.Slf4j;
+import me.geso.tinyorm.TinyORM;
 import net.isucon.isucon4.exception.BusinessCommitException;
 import net.isucon.isucon4.exception.BusinessException;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.function.Supplier;
 
 @Slf4j
-@Singleton
 public class Transaction {
 
     @Inject
-    Connection connection;
+    TinyORM orm;
 
     public <T> T run(Supplier<T> block) {
+
+        Objects.requireNonNull(orm);
+
+        Connection connection = orm.getConnection();
 
         Objects.requireNonNull(connection);
 
