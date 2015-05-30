@@ -25,12 +25,10 @@
 package net.isucon.isucon4.repository;
 
 import javafx.util.Pair;
-import net.isucon.isucon4.model.IpLastSucceeds;
-import net.isucon.isucon4.model.UserNotSucceeds;
+import net.isucon.isucon4.entity.LoginLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -44,75 +42,67 @@ public class ReportRepository {
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
 
-    RowMapper<String> rowStringMapper = new SingleColumnRowMapper<>(String.class);
+    RowMapper<LoginLog> rowLoginLogMapper = new BeanPropertyRowMapper<>(LoginLog.class);
 
-    RowMapper<IpLastSucceeds> rowIpLastSucceedsMapper = new BeanPropertyRowMapper<>(IpLastSucceeds.class);
-
-    RowMapper<UserNotSucceeds> rowUserNotSucceedsMapper = new BeanPropertyRowMapper<>(UserNotSucceeds.class);
-
-    public List<String> getBannedIpsNotSucceed(int threshold) {
+    public List<LoginLog> getBannedIpsNotSucceed(int threshold) {
 
         SqlParameterSource param = new MapSqlParameterSource()
                 .addValue("threshold", threshold);
 
-        List<String> list = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT ip FROM (SELECT ip, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY ip) AS t0 WHERE t0.max_succeeded = 0 AND t0.cnt >= :threshold",
                 param,
-                rowStringMapper);
-
-        return list;
+                rowLoginLogMapper);
     }
 
-    public List<IpLastSucceeds> getBannedIpsLastSucceed() {
+    public List<LoginLog> getBannedIpsLastSucceed() {
         return jdbcTemplate.query(
-                "SELECT ip, MAX(id) AS last_login_id FROM login_log WHERE succeeded = 1 GROUP by ip",
-                rowIpLastSucceedsMapper);
+                "SELECT ip, MAX(id) AS id FROM login_log WHERE succeeded = 1 GROUP by ip",
+                rowLoginLogMapper);
     }
 
-    public Pair<String, Long> getBannedIpsLastSucceedCounts(IpLastSucceeds ipLastSucceeds) {
+    public Pair<String, Long> getBannedIpsLastSucceedCounts(LoginLog loginLog) {
 
         SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("ip", ipLastSucceeds.getIp())
-                .addValue("last_login_id", ipLastSucceeds.getLastLoginId());
+                .addValue("ip", loginLog.getIp())
+                .addValue("id", loginLog.getId());
 
         Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS cnt FROM login_log WHERE ip = :ip AND :last_login_id < id",
+                "SELECT COUNT(1) AS cnt FROM login_log WHERE ip = :ip AND :id < id",
                 param,
                 Long.class);
 
-        return new Pair<>(ipLastSucceeds.getIp(), count);
+        return new Pair<>(loginLog.getIp(), count);
     }
 
-    public List<String> getLockedUsersNotSucceed(int threshold) {
+    public List<LoginLog> getLockedUsersNotSucceed(int threshold) {
 
         SqlParameterSource param = new MapSqlParameterSource()
                 .addValue("threshold", threshold);
 
-        List<String> list = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT login FROM (SELECT user_id, login, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY user_id) AS t0 WHERE t0.user_id IS NOT NULL AND t0.max_succeeded = 0 AND t0.cnt >= :threshold",
                 param,
-                rowStringMapper);
-
-        return list;
+                rowLoginLogMapper);
     }
 
-    public List<UserNotSucceeds> getLockedUsersLastSucceed() {
+    public List<LoginLog> getLockedUsersLastSucceed() {
         return jdbcTemplate.query(
-                "SELECT user_id, login, MAX(id) AS last_login_id FROM login_log WHERE user_id IS NOT NULL AND succeeded = 1 GROUP BY user_id",
-                rowUserNotSucceedsMapper);
+                "SELECT user_id, login, MAX(id) AS id FROM login_log WHERE user_id IS NOT NULL AND succeeded = 1 GROUP BY user_id",
+                rowLoginLogMapper);
     }
 
-    public Pair<String, Long> getLockedUsersLastSucceedCounts(UserNotSucceeds userNotSucceeds) {
+    public Pair<String, Long> getLockedUsersLastSucceedCounts(LoginLog loginLog) {
 
         SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("user_id", userNotSucceeds.getUserId())
-                .addValue("last_login_id", userNotSucceeds.getLastLoginId());
+                .addValue("user_id", loginLog.getUserId())
+                .addValue("id", loginLog.getId());
 
         Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = :user_id AND :last_login_id < id",
+                "SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = :user_id AND :id < id",
                 param,
                 Long.class);
 
-        return new Pair<>(userNotSucceeds.getLogin(), count);
+        return new Pair<>(loginLog.getLogin(), count);
     }
 }
