@@ -31,15 +31,18 @@ import me.geso.avans.annotation.POST;
 import me.geso.avans.annotation.Param;
 import me.geso.webscrew.response.WebResponse;
 import net.isucon.isucon4.exception.BusinessException;
+import net.isucon.isucon4.model.Session;
 import net.isucon.isucon4.row.LoginLog;
 import net.isucon.isucon4.service.LoginService;
-import net.isucon.isucon4.util.HttpSessionUtil;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class LoginController extends BaseController {
+
+    @Inject
+    Session session;
 
     @Inject
     LoginService loginService;
@@ -51,12 +54,12 @@ public class LoginController extends BaseController {
         getServletRequest().getSession();
 
         // セッションから取り出す
-        String login = HttpSessionUtil.getSessionAttribute(getServletRequest(), "login");
-        String msg = HttpSessionUtil.getSessionAttribute(getServletRequest(), "msg");
+        String login = session.getLogin();
+        String msg = session.getMsg();
 
         // セッションから取り出したらクリアする
-        HttpSessionUtil.removeSessionAttribute(getServletRequest(), "login");
-        HttpSessionUtil.removeSessionAttribute(getServletRequest(), "msg");
+        session.setLogin(null);
+        session.setMsg(null);
 
         return freemarker("index.html.ftl")
                 .param("login", login)
@@ -71,15 +74,15 @@ public class LoginController extends BaseController {
 
         try {
             LoginLog loginLog = loginService.attemptLogin(login, password, ip);
-            HttpSessionUtil.setSessionAttribute(getServletRequest(), "loginLog", loginLog);
-            HttpSessionUtil.removeSessionAttribute(getServletRequest(), "login");
-            HttpSessionUtil.removeSessionAttribute(getServletRequest(), "msg");
+            session.setLoginLog(loginLog);
+            session.setLogin(null);
+            session.setMsg(null);
 
             return redirect("/mypage");
         } catch (BusinessException e) {
-            HttpSessionUtil.removeSessionAttribute(getServletRequest(), "loginLog");
-            HttpSessionUtil.setSessionAttribute(getServletRequest(), "login", login);
-            HttpSessionUtil.setSessionAttribute(getServletRequest(), "msg", e.getMessage());
+            session.setLoginLog(null);
+            session.setLogin(login);
+            session.setMsg(e.getMessage());
 
             return redirect("/");
         }

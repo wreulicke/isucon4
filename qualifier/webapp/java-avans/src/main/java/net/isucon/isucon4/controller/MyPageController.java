@@ -28,32 +28,34 @@ import com.google.common.base.Strings;
 import freemarker.template.TemplateException;
 import me.geso.avans.annotation.GET;
 import me.geso.webscrew.response.WebResponse;
-import net.isucon.isucon4.row.LoginLog;
-import net.isucon.isucon4.util.HttpSessionUtil;
+import net.isucon.isucon4.model.Session;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 public class MyPageController extends BaseController {
 
+    @Inject
+    Session session;
+
     @GET("/mypage")
     public WebResponse index() throws IOException, TemplateException {
 
-        LoginLog loginLog = HttpSessionUtil.getSessionAttribute(getServletRequest(), "loginLog");
-
         // ログインエラー処理に使用するセッション属性をクリアする
-        HttpSessionUtil.removeSessionAttribute(getServletRequest(), "login");
-        HttpSessionUtil.removeSessionAttribute(getServletRequest(), "msg");
+        session.setLogin(null);
+        session.setMsg(null);
 
-        if (loginLog == null || Strings.isNullOrEmpty(loginLog.getLogin())) {
-            HttpSessionUtil.setSessionAttribute(getServletRequest(), "msg", "You must be logged in");
+        if (session == null || session.getLoginLog() == null ||
+                Strings.isNullOrEmpty(session.getLoginLog().getLogin())) {
+            session.setMsg("You must be logged in");
 
             return redirect("/");
         }
 
         return freemarker("mypage.html.ftl")
-                .param("createdAt", loginLog.getCreatedAt())
-                .param("ip", loginLog.getIp())
-                .param("login", loginLog.getLogin())
+                .param("createdAt", session.getLoginLog().getCreatedAt())
+                .param("ip", session.getLoginLog().getIp())
+                .param("login", session.getLoginLog().getLogin())
                 .render();
     }
 }
