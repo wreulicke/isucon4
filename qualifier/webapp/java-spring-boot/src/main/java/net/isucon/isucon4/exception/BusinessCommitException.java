@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,15 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.service;
+package net.isucon.isucon4.exception;
 
-import net.isucon.isucon4.entity.LoginLog;
-import net.isucon.isucon4.repository.MyPageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+public class BusinessCommitException extends BusinessException {
 
-import java.util.Optional;
+    public BusinessCommitException(BusinessException e) {
+        this(e.getMessage());
+    }
 
-@Service
-@Transactional(readOnly = true)
-public class MyPageService {
-
-    @Autowired
-    MyPageRepository myPageRepository;
-
-    public Optional<LoginLog> getLastLogin(int userId) {
-        return myPageRepository.findLoginLogByUserId(userId);
+    public BusinessCommitException(String message) {
+        super(message);
     }
 }

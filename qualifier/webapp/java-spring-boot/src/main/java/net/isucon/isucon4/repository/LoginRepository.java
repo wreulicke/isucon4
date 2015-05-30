@@ -24,6 +24,7 @@
 
 package net.isucon.isucon4.repository;
 
+import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,6 +35,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -43,6 +45,8 @@ public class LoginRepository {
     NamedParameterJdbcTemplate jdbcTemplate;
 
     RowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
+
+    RowMapper<LoginLog> rowIpLastSucceedsMapper = new BeanPropertyRowMapper<>(LoginLog.class);
 
     public Optional<User> findUserByLogin(String login) {
 
@@ -87,5 +91,17 @@ public class LoginRepository {
                 Long.class);
 
         return failures;
+    }
+
+    public LoginLog findLoginLogByUserId(int userId) {
+
+        SqlParameterSource param = new MapSqlParameterSource()
+                .addValue("userId", userId);
+        List<LoginLog> loginLogs = jdbcTemplate.query(
+                "SELECT * FROM login_log WHERE succeeded = 1 AND user_id = :userId ORDER BY id DESC LIMIT 2",
+                param,
+                rowIpLastSucceedsMapper);
+
+        return loginLogs.get(loginLogs.size() - 1);
     }
 }
