@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,10 @@
 
 package net.isucon.isucon4.service;
 
+import javafx.util.Pair;
 import net.isucon.isucon4.ThresholdConfig;
-import net.isucon.isucon4.model.IpLastSucceeds;
-import net.isucon.isucon4.model.UserNotSucceeds;
+import net.isucon.isucon4.entity.LoginLog;
+import net.isucon.isucon4.entity.User;
 import net.isucon.isucon4.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,28 +51,34 @@ public class ReportService {
     public Map<String, List<String>> getReport() {
 
         // IP
-        List<String> ips = reportRepository.getBannedIpsNotSucceed(thresholdConfig.getIpBann());
-        List<IpLastSucceeds> bannedIpsLastSucceeds = reportRepository.getBannedIpsLastSucceed();
+        List<LoginLog> ips = reportRepository.getBannedIpsNotSucceed(thresholdConfig.getIpBann());
+        List<LoginLog> bannedIpsLastSucceeds = reportRepository.getBannedIpsLastSucceed();
         List<String> filteredIps = bannedIpsLastSucceeds.stream()
-                .map(ipLastSucceeds -> reportRepository.getBannedIpsLastSucceedCounts(ipLastSucceeds))
+                .map(reportRepository::getBannedIpsLastSucceedCounts)
                 .filter(pair -> pair.getValue() >= thresholdConfig.getIpBann())
-                .map(pair -> pair.getKey())
+                .map(Pair::getKey)
                 .collect(Collectors.toList());
-        ips.addAll(filteredIps);
+        List<String> ipList = ips.stream()
+                .map(LoginLog::getIp)
+                .collect(Collectors.toList());
+        ipList.addAll(filteredIps);
 
         // User
-        List<String> users = reportRepository.getLockedUsersNotSucceed(thresholdConfig.getUserLock());
-        List<UserNotSucceeds> lockedUsersLastSucceeds = reportRepository.getLockedUsersLastSucceed();
+        List<User> users = reportRepository.getLockedUsersNotSucceed(thresholdConfig.getUserLock());
+        List<LoginLog> lockedUsersLastSucceeds = reportRepository.getLockedUsersLastSucceed();
         List<String> filteredUsers = lockedUsersLastSucceeds.stream()
-                .map(userNotSucceeds -> reportRepository.getLockedUsersLastSucceedCounts(userNotSucceeds))
+                .map(reportRepository::getLockedUsersLastSucceedCounts)
                 .filter(pair -> pair.getValue() >= thresholdConfig.getUserLock())
-                .map(pair -> pair.getKey())
+                .map(Pair::getKey)
                 .collect(Collectors.toList());
-        users.addAll(filteredUsers);
+        List<String> userList = users.stream()
+                .map(User::getLogin)
+                .collect(Collectors.toList());
+        userList.addAll(filteredUsers);
 
         Map<String, List<String>> map = new LinkedHashMap<>();
-        map.put("banned_ips", ips);
-        map.put("locked_users", users);
+        map.put("banned_ips", ipList);
+        map.put("locked_users", userList);
 
         return map;
     }

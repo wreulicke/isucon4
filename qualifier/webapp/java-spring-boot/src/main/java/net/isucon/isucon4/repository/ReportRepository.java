@@ -26,8 +26,8 @@ package net.isucon.isucon4.repository;
 
 import javafx.util.Pair;
 import net.isucon.isucon4.RepositoryConfig;
-import net.isucon.isucon4.model.IpLastSucceeds;
-import net.isucon.isucon4.model.UserNotSucceeds;
+import net.isucon.isucon4.entity.LoginLog;
+import net.isucon.isucon4.entity.User;
 import org.seasar.doma.Dao;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.builder.SelectBuilder;
@@ -38,7 +38,7 @@ import java.util.List;
 @RepositoryConfig
 public interface ReportRepository {
 
-    default List<String> getBannedIpsNotSucceed(int threshold) {
+    default List<LoginLog> getBannedIpsNotSucceed(int threshold) {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
@@ -46,39 +46,35 @@ public interface ReportRepository {
         builder.sql("SELECT ip FROM (SELECT ip, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY ip) AS t0 WHERE t0.max_succeeded = 0 AND t0.cnt >= ")
                 .param(int.class, threshold);
 
-        List<String> list = builder.getScalarResultList(String.class);
-
-        return list;
+        return builder.getEntityResultList(LoginLog.class);
     }
 
-    default List<IpLastSucceeds> getBannedIpsLastSucceed() {
+    default List<LoginLog> getBannedIpsLastSucceed() {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
 
-        builder.sql("SELECT ip, MAX(id) AS last_login_id FROM login_log WHERE succeeded = 1 GROUP by ip");
+        builder.sql("SELECT ip, MAX(id) AS id FROM login_log WHERE succeeded = 1 GROUP by ip");
 
-        List<IpLastSucceeds> list = builder.getEntityResultList(IpLastSucceeds.class);
-
-        return list;
+        return builder.getEntityResultList(LoginLog.class);
     }
 
-    default Pair<String, Long> getBannedIpsLastSucceedCounts(IpLastSucceeds ipLastSucceeds) {
+    default Pair<String, Long> getBannedIpsLastSucceedCounts(LoginLog loginLog) {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
 
         builder.sql("SELECT COUNT(1) AS cnt FROM login_log WHERE ip = ")
-                .param(String.class, ipLastSucceeds.getIp())
+                .param(String.class, loginLog.getIp())
                 .sql(" AND id >")
-                .param(int.class, ipLastSucceeds.getLastLoginId());
+                .param(long.class, loginLog.getId());
 
         Long count = builder.getScalarSingleResult(Long.class);
 
-        return new Pair<>(ipLastSucceeds.getIp(), count);
+        return new Pair<>(loginLog.getIp(), count);
     }
 
-    default List<String> getLockedUsersNotSucceed(int threshold) {
+    default List<User> getLockedUsersNotSucceed(int threshold) {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
@@ -86,35 +82,31 @@ public interface ReportRepository {
         builder.sql("SELECT login FROM (SELECT user_id, login, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY user_id) AS t0 WHERE t0.user_id IS NOT NULL AND t0.max_succeeded = 0 AND t0.cnt >= ")
                 .param(int.class, threshold);
 
-        List<String> list = builder.getScalarResultList(String.class);
-
-        return list;
+        return builder.getEntityResultList(User.class);
     }
 
-    default List<UserNotSucceeds> getLockedUsersLastSucceed() {
+    default List<LoginLog> getLockedUsersLastSucceed() {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
 
-        builder.sql("SELECT user_id, login, MAX(id) AS last_login_id FROM login_log WHERE user_id IS NOT NULL AND succeeded = 1 GROUP BY user_id");
+        builder.sql("SELECT user_id, login, MAX(id) AS id FROM login_log WHERE user_id IS NOT NULL AND succeeded = 1 GROUP BY user_id");
 
-        List<UserNotSucceeds> list = builder.getEntityResultList(UserNotSucceeds.class);
-
-        return list;
+        return builder.getEntityResultList(LoginLog.class);
     }
 
-    default Pair<String, Long> getLockedUsersLastSucceedCounts(UserNotSucceeds userNotSucceeds) {
+    default Pair<String, Long> getLockedUsersLastSucceedCounts(LoginLog loginLog) {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
 
         builder.sql("SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = ")
-                .param(int.class, userNotSucceeds.getUserId())
+                .param(int.class, loginLog.getUserId())
                 .sql(" AND id > ")
-                .param(int.class, userNotSucceeds.getLastLoginId());
+                .param(long.class, loginLog.getId());
 
         Long count = builder.getScalarSingleResult(Long.class);
 
-        return new Pair<>(userNotSucceeds.getLogin(), count);
+        return new Pair<>(loginLog.getLogin(), count);
     }
 }

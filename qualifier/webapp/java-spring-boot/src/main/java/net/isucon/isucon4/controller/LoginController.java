@@ -25,8 +25,8 @@
 package net.isucon.isucon4.controller;
 
 import com.google.common.base.Strings;
-import net.isucon.isucon4.entity.User;
 import net.isucon.isucon4.exception.BusinessException;
+import net.isucon.isucon4.model.Session;
 import net.isucon.isucon4.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,11 +37,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/")
 public class LoginController {
+
+    @Autowired
+    Session session;
 
     @Autowired
     LoginService loginService;
@@ -60,15 +62,13 @@ public class LoginController {
         String ip = getRemoteIp(request);
 
         try {
-            Optional<User> user = loginService.attemptLogin(login, password, ip);
-            user.ifPresent(u -> attributes.addFlashAttribute("userId", Optional.ofNullable(u.getId())));
+            session.setLoginLog(loginService.attemptLogin(login, password, ip));
+            return "redirect:/mypage";
         } catch (BusinessException e) {
             attributes.addFlashAttribute("login", login);
             attributes.addFlashAttribute("msg", e.getMessage());
             return "redirect:/";
         }
-
-        return "redirect:/mypage";
     }
 
     String getRemoteIp(HttpServletRequest request) {

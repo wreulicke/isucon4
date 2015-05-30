@@ -25,11 +25,13 @@
 package net.isucon.isucon4.repository;
 
 import net.isucon.isucon4.RepositoryConfig;
+import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.entity.User;
 import org.seasar.doma.Dao;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.builder.SelectBuilder;
 
+import java.util.List;
 import java.util.Optional;
 
 @Dao
@@ -77,5 +79,19 @@ public interface LoginRepository {
         long count = builder.getScalarSingleResult(long.class);
 
         return count;
+    }
+
+    default LoginLog findLoginLogByUserId(int userId) {
+
+        Config config = Config.get(this);
+        SelectBuilder builder = SelectBuilder.newInstance(config);
+
+        builder.sql("SELECT * FROM login_log WHERE succeeded = 1 AND user_id = ")
+                .param(int.class, userId)
+                .sql(" ORDER BY id DESC LIMIT 2");
+
+        List<LoginLog> loginLogs = builder.getEntityResultList(LoginLog.class);
+
+        return loginLogs.get(loginLogs.size() - 1);
     }
 }

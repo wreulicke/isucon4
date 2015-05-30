@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,15 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.repository;
+package net.isucon.isucon4.exception;
 
-import net.isucon.isucon4.RepositoryConfig;
-import net.isucon.isucon4.entity.User;
-import org.seasar.doma.Dao;
-import org.seasar.doma.jdbc.Config;
-import org.seasar.doma.jdbc.builder.InsertBuilder;
+public class BusinessCommitException extends BusinessException {
 
-import java.util.Date;
+    public BusinessCommitException(BusinessException e) {
+        this(e.getMessage());
+    }
 
-@Dao
-@RepositoryConfig
-public interface LoggingRepository {
-
-    default void create(boolean succeeded, String login, String ip, User user) {
-
-        Config config = Config.get(this);
-        InsertBuilder builder = InsertBuilder.newInstance(config);
-
-        Integer userId = user != null ? user.getId() : null;
-
-        builder.sql("INSERT INTO login_log")
-                .sql("(created_at, user_id, login, ip, succeeded) values (")
-                .param(Date.class, new Date()).sql(", ")
-                .param(Integer.class, userId).sql(", ")
-                .param(String.class, login).sql(", ")
-                .param(String.class, ip).sql(", ")
-                .param(boolean.class, succeeded)
-                .sql(")");
-
-        builder.execute();
+    public BusinessCommitException(String message) {
+        super(message);
     }
 }

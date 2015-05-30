@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,21 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.service;
+package net.isucon.isucon4.model;
 
+import lombok.Data;
 import net.isucon.isucon4.entity.LoginLog;
-import net.isucon.isucon4.repository.MyPageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Optional;
+import java.io.Serializable;
 
-@Service
-@Transactional(readOnly = true)
-public class MyPageService {
-
-    @Autowired
-    MyPageRepository myPageRepository;
-
-    public Optional<LoginLog> getLastLogin(int userId) {
-        return myPageRepository.findLoginLogByUserId(userId);
-    }
+@Component
+@Scope(value = WebApplicationContext.SCOPE_SESSION,
+        proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Data
+public class Session implements Serializable {
+    LoginLog loginLog;
 }
