@@ -40,9 +40,9 @@ public class LoggingRepository {
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
 
-    public void create(boolean succeeded, String login, String ip, Optional<User> user) {
+    public void create(boolean succeeded, String login, String ip, User user) {
 
-        Integer userId = user.isPresent() ? user.get().getId() : null;
+        Integer userId = user != null ? user.getId() : null;
         SqlParameterSource param = new MapSqlParameterSource()
                 .addValue("createdAt", new Date())
                 .addValue("userId", userId)

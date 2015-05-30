@@ -24,8 +24,8 @@
 
 package net.isucon.isucon4.controller;
 
-import net.isucon.isucon4.entity.LoginLog;
-import net.isucon.isucon4.service.MyPageService;
+import com.google.common.base.Strings;
+import net.isucon.isucon4.model.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -33,45 +33,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/mypage")
 public class MyPageController {
 
     @Autowired
-    MyPageService myPageService;
+    Session session;
 
     @RequestMapping(method = RequestMethod.GET)
     String index(ModelMap model, RedirectAttributes attributes) {
 
-        Optional<Integer> userId = getUserId(model);
-
-        if (!userId.isPresent()) {
+        if (session == null || session.getLoginLog() == null ||
+                Strings.isNullOrEmpty(session.getLoginLog().getLogin())) {
             attributes.addFlashAttribute("msg", "You must be logged in");
             return "redirect:/";
         }
 
-        userId.ifPresent(i -> {
-            Optional<LoginLog> loginLog = myPageService.getLastLogin(i.intValue());
-
-            loginLog.ifPresent(l -> {
-                model.addAttribute("createdAt", l.getCreatedAt());
-                model.addAttribute("ip", l.getIp());
-                model.addAttribute("login", l.getLogin());
-            });
-        });
+        model.addAttribute("createdAt", session.getLoginLog().getCreatedAt());
+        model.addAttribute("ip", session.getLoginLog().getIp());
+        model.addAttribute("login", session.getLoginLog().getLogin());
 
         return "mypage";
-    }
-
-    @SuppressWarnings("unchecked")
-    Optional<Integer> getUserId(ModelMap model) {
-        Optional<Integer> userId = (Optional<Integer>) model.get("userId");
-        if (userId == null) {
-            return Optional.empty();
-        } else {
-            return userId;
-        }
     }
 }

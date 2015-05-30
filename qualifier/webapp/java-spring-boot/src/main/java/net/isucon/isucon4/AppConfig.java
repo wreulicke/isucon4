@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.context.request.RequestContextListener;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -190,4 +191,9 @@ public class AppConfig {
 //
 //        return factory;
 //    }
+
+    @Bean
+    public RequestContextListener requestContextListener() {
+        return new RequestContextListener();
+    }
 }

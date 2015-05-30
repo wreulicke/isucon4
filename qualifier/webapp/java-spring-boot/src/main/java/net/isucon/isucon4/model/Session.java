@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,18 @@
 package net.isucon.isucon4.model;
 
 import lombok.Data;
+import net.isucon.isucon4.entity.LoginLog;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
+import java.io.Serializable;
+
+@Component
+@Scope(value = WebApplicationContext.SCOPE_SESSION,
+        proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Data
-public class UserNotSucceeds {
-    int userId;
-    String login;
-    int lastLoginId;
+public class Session implements Serializable {
+    LoginLog loginLog;
 }
