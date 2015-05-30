@@ -27,7 +27,6 @@ package net.isucon.isucon4.repository;
 import javafx.util.Pair;
 import me.geso.tinyorm.TinyORM;
 import net.isucon.isucon4.row.LoginLog;
-import net.isucon.isucon4.row.User;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -59,9 +58,9 @@ public class ReportRepository {
         return new Pair<>(loginLog.getIp(), count);
     }
 
-    public List<User> getLockedUsersNotSucceed(int threshold) {
+    public List<LoginLog> getLockedUsersNotSucceed(int threshold) {
         return orm.searchBySQL(
-                User.class,
+                LoginLog.class,
                 "SELECT login FROM (SELECT user_id, login, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY user_id) AS t0 WHERE t0.user_id IS NOT NULL AND t0.max_succeeded = 0 AND t0.cnt >= ?",
                 Collections.singletonList(threshold));
     }

@@ -28,7 +28,6 @@ import javafx.util.Pair;
 import net.isucon.isucon4.constant.IsuconConstant;
 import net.isucon.isucon4.repository.ReportRepository;
 import net.isucon.isucon4.row.LoginLog;
-import net.isucon.isucon4.row.User;
 
 import javax.inject.Inject;
 import java.util.LinkedHashMap;
@@ -57,15 +56,15 @@ public class ReportService {
         ipList.addAll(filteredIps);
 
         // User
-        List<User> users = reportRepository.getLockedUsersNotSucceed(IsuconConstant.THRESHOLD_USER_LOCK);
+        List<LoginLog> loginLogs = reportRepository.getLockedUsersNotSucceed(IsuconConstant.THRESHOLD_USER_LOCK);
         List<LoginLog> lockedUsersLastSucceeds = reportRepository.getLockedUsersLastSucceed();
         List<String> filteredUsers = lockedUsersLastSucceeds.stream()
                 .map(reportRepository::getLockedUsersLastSucceedCounts)
                 .filter(pair -> pair.getValue() >= IsuconConstant.THRESHOLD_USER_LOCK)
                 .map(Pair::getKey)
                 .collect(Collectors.toList());
-        List<String> userList = users.stream()
-                .map(User::getLogin)
+        List<String> userList = loginLogs.stream()
+                .map(LoginLog::getLogin)
                 .collect(Collectors.toList());
         userList.addAll(filteredUsers);
 

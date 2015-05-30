@@ -58,7 +58,6 @@ public class LoginService {
                     .orElseThrow(() -> new BusinessCommitException("Wrong username or password"));
 
             try {
-
                 checkIpBanned(ip);
                 checkUserLocked(user);
 
