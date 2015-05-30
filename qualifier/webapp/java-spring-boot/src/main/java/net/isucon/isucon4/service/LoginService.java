@@ -26,7 +26,9 @@ package net.isucon.isucon4.service;
 
 import com.google.common.primitives.Bytes;
 import net.isucon.isucon4.ThresholdConfig;
+import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.entity.User;
+import net.isucon.isucon4.exception.BusinessCommitException;
 import net.isucon.isucon4.exception.BusinessException;
 import net.isucon.isucon4.repository.LoggingRepository;
 import net.isucon.isucon4.repository.LoginRepository;
@@ -38,7 +40,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -53,70 +54,58 @@ public class LoginService {
     @Autowired
     LoggingRepository loggingRepository;
 
-    @Transactional(noRollbackFor = BusinessException.class)
-    public Optional<User> attemptLogin(String login, String password, String ip) {
+    @Transactional(noRollbackFor = BusinessCommitException.class)
+    public LoginLog attemptLogin(String login, String password, String ip) {
 
-        Optional<User> user = loginRepository.findUserByLogin(login);
+        User user = loginRepository.findUserByLogin(login)
+                .orElseThrow(() -> new BusinessCommitException("Wrong username or password"));
 
         try {
             checkIpBanned(ip);
             checkUserLocked(user);
 
-            user.orElseThrow(() -> new BusinessException("Wrong username or password"));
-
-            user.ifPresent(u -> {
-                String hash = calculatePasswordHash(password, u.getSalt());
-                if (Objects.equals(u.getPasswordHash(), hash)) {
-                    loggingRepository.create(true, login, ip, user);
-                } else {
-                    throw new BusinessException("Wrong username or password");
-                }
-            });
+            String hash = calculatePasswordHash(password, user.getSalt());
+            if (Objects.equals(user.getPasswordHash(), hash)) {
+                loggingRepository.create(true, login, ip, user);
+                return loginRepository.findLoginLogByUserId(user.getId());
+            } else {
+                throw new BusinessCommitException("Wrong username or password");
+            }
         } catch (BusinessException e) {
             loggingRepository.create(false, login, ip, user);
             throw e;
         }
-
-        return user;
     }
 
     void checkIpBanned(String ip) {
         long failures = loginRepository.countBannedIp(ip);
         if (failures >= thresholdConfig.getIpBann()) {
-            throw new BusinessException("You're banned.");
+            throw new BusinessCommitException("You're banned.");
         }
     }
 
-    void checkUserLocked(Optional<User> user) {
-        user.ifPresent(u -> {
-            long failures = loginRepository.countLockedUser(u.getId());
-            if (failures >= thresholdConfig.getUserLock()) {
-                throw new BusinessException("This account is locked.");
-            }
-        });
+    void checkUserLocked(User user) {
+        long failures = loginRepository.countLockedUser(user.getId());
+        if (failures >= thresholdConfig.getUserLock()) {
+            throw new BusinessCommitException("This account is locked.");
+        }
     }
 
     String calculatePasswordHash(String password, String salt) {
-
-        MessageDigest md = null;
-
         try {
-            md = MessageDigest.getInstance("SHA-256");
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.reset();
+            String v = String.format("%s:%s", password, salt);
+            md.update(v.getBytes(StandardCharsets.UTF_8));
+            byte[] digest = md.digest();
+
+            StringBuilder sb = Bytes.asList(digest).stream()
+                    .map(b -> String.format("%02x", b))
+                    .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append);
+
+            return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-
-        md.reset();
-        String v = String.format("%s:%s", password, salt);
-        md.update(v.getBytes(StandardCharsets.UTF_8));
-        byte[] digest = md.digest();
-
-        StringBuilder sb = Bytes.asList(digest).stream()
-                .map(b -> String.format("%02x", b))
-                .collect(StringBuilder::new,
-                        (sb1, s) -> sb1.append(s),
-                        (sb2, sb3) -> sb2.append(sb3));
-
-        return sb.toString();
     }
 }

@@ -1,5 +1,5 @@
 SELECT ip
-     , MAX(id) AS last_login_id
+     , MAX(id) AS id
   FROM login_log
  WHERE succeeded = 1
  GROUP by ip

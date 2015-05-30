@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,43 +22,15 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.repository;
+package net.isucon.isucon4.exception;
 
-import net.isucon.isucon4.RepositoryConfig;
-import net.isucon.isucon4.entity.LoginLog;
-import net.isucon.isucon4.entity.User;
-import org.seasar.doma.Dao;
-import org.seasar.doma.Select;
-import org.seasar.doma.jdbc.Config;
-import org.seasar.doma.jdbc.builder.SelectBuilder;
+public class BusinessCommitException extends BusinessException {
 
-import java.util.List;
-import java.util.Optional;
+    public BusinessCommitException(BusinessException e) {
+        this(e.getMessage());
+    }
 
-@Dao
-@RepositoryConfig
-public interface LoginRepository {
-
-    @Select
-    Optional<User> findUserByLogin(String login);
-
-    @Select
-    long countBannedIp(String ip);
-
-    @Select
-    long countLockedUser(int userId);
-
-    default LoginLog findLoginLogByUserId(int userId) {
-
-        Config config = Config.get(this);
-        SelectBuilder builder = SelectBuilder.newInstance(config);
-
-        builder.sql("SELECT * FROM login_log WHERE succeeded = 1 AND user_id = ")
-                .param(int.class, userId)
-                .sql(" ORDER BY id DESC LIMIT 2");
-
-        List<LoginLog> loginLogs = builder.getEntityResultList(LoginLog.class);
-
-        return loginLogs.get(loginLogs.size() - 1);
+    public BusinessCommitException(String message) {
+        super(message);
     }
 }

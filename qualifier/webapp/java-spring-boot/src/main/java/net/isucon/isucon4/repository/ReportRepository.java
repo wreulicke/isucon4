@@ -26,8 +26,8 @@ package net.isucon.isucon4.repository;
 
 import javafx.util.Pair;
 import net.isucon.isucon4.RepositoryConfig;
-import net.isucon.isucon4.model.IpLastSucceeds;
-import net.isucon.isucon4.model.UserNotSucceeds;
+import net.isucon.isucon4.entity.LoginLog;
+import net.isucon.isucon4.entity.User;
 import org.seasar.doma.Dao;
 import org.seasar.doma.Select;
 import org.seasar.doma.jdbc.Config;
@@ -40,44 +40,44 @@ import java.util.List;
 public interface ReportRepository {
 
     @Select
-    List<String> getBannedIpsNotSucceed(int threshold);
+    List<LoginLog> getBannedIpsNotSucceed(int threshold);
 
     @Select
-    List<IpLastSucceeds> getBannedIpsLastSucceed();
+    List<LoginLog> getBannedIpsLastSucceed();
 
-    default Pair<String, Long> getBannedIpsLastSucceedCounts(IpLastSucceeds ipLastSucceeds) {
+    default Pair<String, Long> getBannedIpsLastSucceedCounts(LoginLog loginLog) {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
 
         builder.sql("SELECT COUNT(1) AS cnt FROM login_log WHERE ip = ")
-                .param(String.class, ipLastSucceeds.getIp())
+                .param(String.class, loginLog.getIp())
                 .sql(" AND id >")
-                .param(int.class, ipLastSucceeds.getLastLoginId());
+                .param(long.class, loginLog.getId());
 
         Long count = builder.getScalarSingleResult(Long.class);
 
-        return new Pair<>(ipLastSucceeds.getIp(), count);
+        return new Pair<>(loginLog.getIp(), count);
     }
 
     @Select
-    List<String> getLockedUsersNotSucceed(int threshold);
+    List<User> getLockedUsersNotSucceed(int threshold);
 
     @Select
-    List<UserNotSucceeds> getLockedUsersLastSucceed();
+    List<LoginLog> getLockedUsersLastSucceed();
 
-    default Pair<String, Long> getLockedUsersLastSucceedCounts(UserNotSucceeds userNotSucceeds) {
+    default Pair<String, Long> getLockedUsersLastSucceedCounts(LoginLog loginLog) {
 
         Config config = Config.get(this);
         SelectBuilder builder = SelectBuilder.newInstance(config);
 
         builder.sql("SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = ")
-                .param(int.class, userNotSucceeds.getUserId())
+                .param(int.class, loginLog.getUserId())
                 .sql(" AND id >")
-                .param(int.class, userNotSucceeds.getLastLoginId());
+                .param(long.class, loginLog.getId());
 
         Long count = builder.getScalarSingleResult(Long.class);
 
-        return new Pair<>(userNotSucceeds.getLogin(), count);
+        return new Pair<>(loginLog.getLogin(), count);
     }
 }

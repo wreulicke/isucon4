@@ -31,18 +31,17 @@ import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.builder.InsertBuilder;
 
 import java.util.Date;
-import java.util.Optional;
 
 @Dao
 @RepositoryConfig
 public interface LoggingRepository {
 
-    default void create(boolean succeeded, String login, String ip, Optional<User> user) {
+    default void create(boolean succeeded, String login, String ip, User user) {
 
         Config config = Config.get(this);
         InsertBuilder builder = InsertBuilder.newInstance(config);
 
-        Integer userId = user.isPresent() ? user.get().getId() : null;
+        Integer userId = user != null ? user.getId() : null;
 
         builder.sql("INSERT INTO login_log")
                 .sql("(created_at, user_id, login, ip, succeeded) values (")
