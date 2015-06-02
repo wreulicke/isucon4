@@ -27,7 +27,7 @@ package net.isucon.isucon4.service;
 import javafx.util.Pair;
 import net.isucon.isucon4.ThresholdConfig;
 import net.isucon.isucon4.entity.LoginLog;
-import net.isucon.isucon4.repository.ReportRepository;
+import net.isucon.isucon4.repository.LoginLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,15 +45,18 @@ public class ReportService {
     ThresholdConfig thresholdConfig;
 
     @Autowired
-    ReportRepository reportRepository;
+    LoginLogRepository loginLogRepository;
 
     public Map<String, List<String>> getReport() {
 
         // IP
-        List<LoginLog> ips = reportRepository.getBannedIpsNotSucceed(thresholdConfig.getIpBann());
-        List<LoginLog> bannedIpsLastSucceeds = reportRepository.getBannedIpsLastSucceed();
+        List<LoginLog> ips = loginLogRepository.getBannedIpsNotSucceed(thresholdConfig.getIpBann());
+        List<LoginLog> bannedIpsLastSucceeds = loginLogRepository.getBannedIpsLastSucceed();
         List<String> filteredIps = bannedIpsLastSucceeds.stream()
-                .map(reportRepository::getBannedIpsLastSucceedCounts)
+                .map(l -> {
+                    long count = loginLogRepository.getBannedIpsLastSucceedCounts(l.getIp(), l.getId());
+                    return new Pair<>(l.getIp(), count);
+                })
                 .filter(pair -> pair.getValue() >= thresholdConfig.getIpBann())
                 .map(Pair::getKey)
                 .collect(Collectors.toList());
@@ -63,10 +66,13 @@ public class ReportService {
         ipList.addAll(filteredIps);
 
         // User
-        List<LoginLog> loginLogs = reportRepository.getLockedUsersNotSucceed(thresholdConfig.getUserLock());
-        List<LoginLog> lockedUsersLastSucceeds = reportRepository.getLockedUsersLastSucceed();
+        List<LoginLog> loginLogs = loginLogRepository.getLockedUsersNotSucceed(thresholdConfig.getUserLock());
+        List<LoginLog> lockedUsersLastSucceeds = loginLogRepository.getLockedUsersLastSucceed();
         List<String> filteredUsers = lockedUsersLastSucceeds.stream()
-                .map(reportRepository::getLockedUsersLastSucceedCounts)
+                .map(l -> {
+                    long count = loginLogRepository.getLockedUsersLastSucceedCounts(l.getUserId(), l.getId());
+                    return new Pair<>(l.getLogin(), count);
+                })
                 .filter(pair -> pair.getValue() >= thresholdConfig.getUserLock())
                 .map(Pair::getKey)
                 .collect(Collectors.toList());

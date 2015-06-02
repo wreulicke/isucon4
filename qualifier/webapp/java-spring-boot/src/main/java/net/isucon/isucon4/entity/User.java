@@ -26,10 +26,27 @@ package net.isucon.isucon4.entity;
 
 import lombok.Data;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.io.Serializable;
+
+@Entity
 @Data
-public class User {
-    int id;
+public class User implements Serializable {
+
+    @Id
+    @GeneratedValue
+    @Column
+    Integer id;
+
+    @Column
     String login;
+
+    @Column(name = "password_hash")
     String passwordHash;
+
+    @Column
     String salt;
 }

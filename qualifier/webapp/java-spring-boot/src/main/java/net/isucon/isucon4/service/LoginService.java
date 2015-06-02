@@ -30,8 +30,8 @@ import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.entity.User;
 import net.isucon.isucon4.exception.BusinessCommitException;
 import net.isucon.isucon4.exception.BusinessException;
-import net.isucon.isucon4.repository.LoggingRepository;
-import net.isucon.isucon4.repository.LoginRepository;
+import net.isucon.isucon4.repository.LoginLogRepository;
+import net.isucon.isucon4.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -49,15 +51,15 @@ public class LoginService {
     ThresholdConfig thresholdConfig;
 
     @Autowired
-    LoginRepository loginRepository;
+    UserRepository userRepository;
 
     @Autowired
-    LoggingRepository loggingRepository;
+    LoginLogRepository loginLogRepository;
 
     @Transactional(noRollbackFor = BusinessCommitException.class)
     public LoginLog attemptLogin(String login, String password, String ip) {
 
-        User user = loginRepository.findUserByLogin(login)
+        User user = userRepository.findUserByLogin(login)
                 .orElseThrow(() -> new BusinessCommitException("Wrong username or password"));
 
         try {
@@ -66,26 +68,41 @@ public class LoginService {
 
             String hash = calculatePasswordHash(password, user.getSalt());
             if (Objects.equals(user.getPasswordHash(), hash)) {
-                loggingRepository.create(true, login, ip, user);
-                return loginRepository.findLoginLogByUserId(user.getId());
+                LoginLog loginLog = new LoginLog();
+                loginLog.setCreatedAt(new Date());
+                loginLog.setUserId(user.getId());
+                loginLog.setLogin(login);
+                loginLog.setIp(ip);
+                loginLog.setSucceeded((byte) 1);
+                loginLogRepository.save(loginLog);
+
+                List<LoginLog> loginLogs = loginLogRepository.findLoginLogByUserId(user.getId());
+
+                return loginLogs.get(loginLogs.size() - 1);
             } else {
                 throw new BusinessCommitException("Wrong username or password");
             }
         } catch (BusinessException e) {
-            loggingRepository.create(false, login, ip, user);
+            LoginLog loginLog = new LoginLog();
+            loginLog.setCreatedAt(new Date());
+            loginLog.setUserId(user.getId());
+            loginLog.setLogin(login);
+            loginLog.setIp(ip);
+            loginLog.setSucceeded((byte) 0);
+            loginLogRepository.save(loginLog);
             throw e;
         }
     }
 
     void checkIpBanned(String ip) {
-        long failures = loginRepository.countBannedIp(ip);
+        long failures = loginLogRepository.countBannedIp(ip);
         if (failures >= thresholdConfig.getIpBann()) {
             throw new BusinessCommitException("You're banned.");
         }
     }
 
     void checkUserLocked(User user) {
-        long failures = loginRepository.countLockedUser(user.getId());
+        long failures = loginLogRepository.countLockedUser(user.getId());
         if (failures >= thresholdConfig.getUserLock()) {
             throw new BusinessCommitException("This account is locked.");
         }

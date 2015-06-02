@@ -25,34 +25,15 @@
 package net.isucon.isucon4.repository;
 
 import net.isucon.isucon4.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.Date;
 import java.util.Optional;
 
-@Repository
-public class LoggingRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
-
-    public void create(boolean succeeded, String login, String ip, User user) {
-
-        Integer userId = user != null ? user.getId() : null;
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("createdAt", new Date())
-                .addValue("userId", userId)
-                .addValue("login", login)
-                .addValue("ip", ip)
-                .addValue("succeeded", succeeded);
-
-        jdbcTemplate.update(
-                "INSERT INTO login_log(created_at, user_id, login, ip, succeeded)" +
-                        " values (:createdAt, :userId, :login, :ip, :succeeded)",
-                param);
-    }
+    @Query(value = "SELECT * FROM users WHERE login = :login",
+            nativeQuery = true)
+    Optional<User> findUserByLogin(@Param("login") String login);
 }
