@@ -54,8 +54,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
                 new ServletModule() {
                     @Override
                     protected void configureServlets() {
-                        serve("/images/*").with(DefaultServlet.class);
-                        serve("/stylesheets/*").with(DefaultServlet.class);
+                        serve("/images/*", "/stylesheets/*").with(DefaultServlet.class);
                         serve("/*").with(Servlet.class);
                     }
                 });

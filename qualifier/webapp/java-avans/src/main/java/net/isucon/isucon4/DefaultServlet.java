@@ -25,7 +25,18 @@
 package net.isucon.isucon4;
 
 import javax.inject.Singleton;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Singleton
-public class DefaultServlet extends org.apache.catalina.servlets.DefaultServlet {
+public class DefaultServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        getServletContext().getNamedDispatcher("default").forward(request, response);
+    }
 }
