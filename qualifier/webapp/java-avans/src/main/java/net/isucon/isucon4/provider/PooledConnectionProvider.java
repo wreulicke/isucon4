@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import com.google.inject.servlet.RequestScoped;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
  * This is a JDBC connection provider.
  */
 @Slf4j
-@RequestScoped
 public class PooledConnectionProvider implements Provider<Connection> {
 
 	@Inject
