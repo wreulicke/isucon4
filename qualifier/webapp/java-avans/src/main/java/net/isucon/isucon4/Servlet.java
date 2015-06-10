@@ -1,45 +1,60 @@
 package net.isucon.isucon4;
 
-import com.google.inject.Injector;
-import lombok.extern.slf4j.Slf4j;
-import net.isucon.isucon4.controller.LoginController;
+import java.io.IOException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import net.isucon.isucon4.controller.LoginController;
+
+import com.google.inject.Injector;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Singleton
-@MultipartConfig(maxFileSize = 5242880,
-        maxRequestSize = 27262976,
-        fileSizeThreshold = 32768)
 public class Servlet extends HttpServlet {
 
-    @Inject
-    private Injector injector;
+	private static final String MULTIPART_CONFIG = "org.eclipse.jetty.multipartConfig";
 
-    private Dispatcher dispatcher;
+	private static final String LOCATION = "";
 
-    @Override
-    public void init() {
-        log.info("Initialized Servlet");
-        dispatcher = new Dispatcher(injector);
-        dispatcher.registerPackage(LoginController.class.getPackage());
-    }
+	private static final long MAX_FILE_SIZE = 5_242_880;
 
-    @Override
-    public void service(final ServletRequest req, final ServletResponse res)
-            throws ServletException, IOException {
-        this.dispatcher.handler(
-                (HttpServletRequest) req,
-                (HttpServletResponse) res);
-    }
+	private static final long MAX_REQUEST_SIZE = 27_262_976;
 
+	private static final int FILE_SIZE_THRESHOLD = 32_768;
+
+	private static final MultipartConfigElement MULTIPART_CONFIG_ELEMENT =
+			new MultipartConfigElement(LOCATION, MAX_FILE_SIZE, MAX_REQUEST_SIZE, FILE_SIZE_THRESHOLD);
+
+	@Inject
+	private Injector injector;
+
+	private Dispatcher dispatcher;
+
+	@Override
+	public void init() {
+		log.info("Initialized Servlet");
+		dispatcher = new Dispatcher(injector);
+		dispatcher.registerPackage(LoginController.class.getPackage());
+	}
+
+	@Override
+	public void service(HttpServletRequest req, HttpServletResponse res)
+			throws ServletException, IOException {
+
+		// guice-servlet need this hack.
+		// tomcat config is META-INF/context.xml (allowCasualMultipartParsing="true")
+		if ("POST".equals(req.getMethod())) {
+			req.setAttribute(MULTIPART_CONFIG, MULTIPART_CONFIG_ELEMENT);
+		}
+
+		this.dispatcher.handler(req, res);
+	}
 }
