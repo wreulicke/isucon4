@@ -50,9 +50,6 @@ public class LoginController extends BaseController {
     @GET("/")
     public WebResponse index() throws IOException, TemplateException {
 
-        // セッションを開始するために、これが必要っぽい
-        getServletRequest().getSession();
-
         // セッションから取り出す
         String login = session.getLogin();
         String msg = session.getMsg();
