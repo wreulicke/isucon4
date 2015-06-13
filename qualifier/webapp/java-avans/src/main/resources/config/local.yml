@@ -4,3 +4,7 @@ jdbc:
   url: jdbc:mysql://localhost/isu4_qualifier?characterEncoding=utf8&cacheServerConfiguration=true
   username: root
   password:
+
+dataSource:
+  minimumIdle: 8
+  maximumPoolSize: 100

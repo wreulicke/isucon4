@@ -17,6 +17,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
 
 	private ServletContext servletContext;
 
+	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
 		servletContext = servletContextEvent.getServletContext();
 		super.contextInitialized(servletContextEvent);
@@ -37,7 +38,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
 			});
 	}
 
-	BasicModule buildBasicModule() {
+	private BasicModule buildBasicModule() {
 		Object config = servletContext.getAttribute("java-avans.config");
 		if (config != null && config instanceof Config) {
 			return new BasicModule((Config)config);
