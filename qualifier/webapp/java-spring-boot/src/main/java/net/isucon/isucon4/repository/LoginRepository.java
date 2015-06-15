@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +24,14 @@
 
 package net.isucon.isucon4.repository;
 
-import net.isucon.isucon4.entity.LoginLog;
-import net.isucon.isucon4.entity.User;
+import net.isucon.isucon4.TinyORMProvider;
+import net.isucon.isucon4.row.LoginLog;
+import net.isucon.isucon4.row.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,65 +39,37 @@ import java.util.Optional;
 public class LoginRepository {
 
     @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
-
-    RowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
-
-    RowMapper<LoginLog> rowIpLastSucceedsMapper = new BeanPropertyRowMapper<>(LoginLog.class);
+    TinyORMProvider ormProvider;
 
     public Optional<User> findUserByLogin(String login) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("login", login);
-
-        User user = null;
-
-        try {
-            user = jdbcTemplate.queryForObject(
-                    "SELECT * FROM users WHERE login = :login",
-                    param,
-                    rowMapper);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable(user);
+        return ormProvider.get().singleBySQL(User.class,
+                "SELECT id, login, password_hash AS passwordHash, salt" +
+                        " FROM users WHERE login = ?",
+                Collections.singletonList(login));
     }
 
     public long countBannedIp(String ip) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("ip", ip);
-        long failures = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS failures FROM login_log " +
-                        "WHERE ip = :ip AND id > IFNULL((select id from login_log where ip = :ip AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)",
-                param,
-                Long.class);
-
-        return failures;
+        return ormProvider.get().queryForLong(
+                "SELECT COUNT(1) AS failures FROM login_log" +
+                        " WHERE ip = ? AND id > IFNULL((select id from login_log where ip = ? AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)",
+                Arrays.asList(ip, ip))
+                .orElse(0L);
     }
 
     public long countLockedUser(int userId) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("userId", userId);
-        long failures = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) AS failures FROM login_log " +
-                        "WHERE user_id = :userId AND id > IFNULL((select id from login_log where user_id = :userId AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)",
-                param,
-                Long.class);
-
-        return failures;
+        return ormProvider.get().queryForLong(
+                "SELECT COUNT(1) AS failures FROM login_log" +
+                        " WHERE user_id = ? AND id > IFNULL((select id from login_log where user_id = ? AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)",
+                Arrays.asList(userId, userId))
+                .orElse(0L);
     }
 
     public LoginLog findLoginLogByUserId(int userId) {
-
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("userId", userId);
-        List<LoginLog> loginLogs = jdbcTemplate.query(
-                "SELECT * FROM login_log WHERE succeeded = 1 AND user_id = :userId ORDER BY id DESC LIMIT 2",
-                param,
-                rowIpLastSucceedsMapper);
+        List<LoginLog> loginLogs = ormProvider.get().searchBySQL(
+                LoginLog.class,
+                "SELECT id, created_at AS createdAt, user_id AS userId, login, ip, succeeded" +
+                        " FROM login_log WHERE succeeded = 1 AND user_id = ? ORDER BY id DESC LIMIT 2",
+                Collections.singletonList(userId));
 
         return loginLogs.get(loginLogs.size() - 1);
     }

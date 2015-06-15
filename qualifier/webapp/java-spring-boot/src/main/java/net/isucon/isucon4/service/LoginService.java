@@ -26,12 +26,12 @@ package net.isucon.isucon4.service;
 
 import com.google.common.primitives.Bytes;
 import net.isucon.isucon4.ThresholdConfig;
-import net.isucon.isucon4.entity.LoginLog;
-import net.isucon.isucon4.entity.User;
 import net.isucon.isucon4.exception.BusinessCommitException;
 import net.isucon.isucon4.exception.BusinessException;
 import net.isucon.isucon4.repository.LoggingRepository;
 import net.isucon.isucon4.repository.LoginRepository;
+import net.isucon.isucon4.row.LoginLog;
+import net.isucon.isucon4.row.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

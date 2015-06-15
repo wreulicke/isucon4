@@ -25,7 +25,7 @@
 package net.isucon.isucon4.model;
 
 import lombok.Data;
-import net.isucon.isucon4.entity.LoginLog;
+import net.isucon.isucon4.row.LoginLog;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;

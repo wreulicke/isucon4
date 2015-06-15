@@ -22,27 +22,22 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.repository;
+package net.isucon.isucon4;
 
-import net.isucon.isucon4.TinyORMProvider;
-import net.isucon.isucon4.row.User;
+import me.geso.tinyorm.TinyORM;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Date;
+import javax.sql.DataSource;
 
-@Repository
-public class LoggingRepository {
+@Component
+public class TinyORMProvider {
 
     @Autowired
-    TinyORMProvider ormProvider;
+    private DataSource dataSource;
 
-    public void create(boolean succeeded, String login, String ip, User user) {
-        Integer userId = user != null ? user.getId() : null;
-        ormProvider.get().updateBySQL(
-                "INSERT INTO login_log(created_at, user_id, login, ip, succeeded)" +
-                        " values (?, ?, ?, ?, ?)",
-                Arrays.asList(new Date(), userId, login, ip, succeeded));
+    public TinyORM get() {
+        return new TinyORM(DataSourceUtils.getConnection(dataSource));
     }
 }

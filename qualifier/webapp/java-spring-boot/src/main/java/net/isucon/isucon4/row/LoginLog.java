@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,18 +22,38 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.entity;
+package net.isucon.isucon4.row;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import me.geso.tinyorm.Row;
+import me.geso.tinyorm.annotations.Column;
+import me.geso.tinyorm.annotations.CreatedTimestampColumn;
+import me.geso.tinyorm.annotations.PrimaryKey;
+import me.geso.tinyorm.annotations.Table;
 
 import java.util.Date;
 
+@Table("login_log")
 @Data
-public class LoginLog {
+@EqualsAndHashCode(callSuper = false)
+public class LoginLog extends Row<LoginLog> {
+
+    @PrimaryKey
     long id;
+
+    @CreatedTimestampColumn
     Date createdAt;
+
+    @Column
     Integer userId;
+
+    @Column
     String login;
+
+    @Column
     String ip;
-    byte succeeded;
+
+    @Column
+    int succeeded;
 }

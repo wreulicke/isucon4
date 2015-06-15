@@ -97,6 +97,17 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>me.geso</groupId>
+            <artifactId>tinyorm</artifactId>
+            <version>1.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>

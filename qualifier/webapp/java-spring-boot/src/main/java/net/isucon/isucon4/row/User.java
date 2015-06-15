@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Manabu Matsuzaki
+ * Copyright (c) 2015 Manabu Matsuzaki
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,14 +22,29 @@
  * THE SOFTWARE.
  */
 
-package net.isucon.isucon4.entity;
+package net.isucon.isucon4.row;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import me.geso.tinyorm.Row;
+import me.geso.tinyorm.annotations.Column;
+import me.geso.tinyorm.annotations.PrimaryKey;
+import me.geso.tinyorm.annotations.Table;
 
+@Table("users")
 @Data
-public class User {
+@EqualsAndHashCode(callSuper = false)
+public class User extends Row<User> {
+
+    @PrimaryKey
     int id;
+
+    @Column
     String login;
+
+    @Column
     String passwordHash;
+
+    @Column
     String salt;
 }

@@ -26,8 +26,8 @@ package net.isucon.isucon4.service;
 
 import javafx.util.Pair;
 import net.isucon.isucon4.ThresholdConfig;
-import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.repository.ReportRepository;
+import net.isucon.isucon4.row.LoginLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
