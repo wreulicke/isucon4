@@ -34,6 +34,9 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.request.RequestContextListener;
+import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.view.script.ScriptTemplateConfigurer;
+import org.springframework.web.servlet.view.script.ScriptTemplateViewResolver;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -195,5 +198,27 @@ public class AppConfig {
     @Bean
     public RequestContextListener requestContextListener() {
         return new RequestContextListener();
+    }
+
+    @Bean
+    public ViewResolver reactViewResolver() {
+        ScriptTemplateViewResolver viewResolver = new ScriptTemplateViewResolver();
+        viewResolver.setPrefix("/templates/");
+        viewResolver.setSuffix(".hbs");
+        return viewResolver;
+    }
+
+    @Bean
+    public ScriptTemplateConfigurer reactConfigurer() {
+        ScriptTemplateConfigurer configurer = new ScriptTemplateConfigurer();
+        configurer.setEngineName("nashorn");
+        configurer.setScripts("/static/js/polyfill.js",
+                "/static/js/lib/handlebars.min-v4.0.5.js",
+                "/static/js/lib/moment.min-v2.10.6.js",
+                "/static/js/render.js",
+                "/static/js/helper.js");
+        configurer.setRenderFunction("render");
+        configurer.setSharedEngine(false);
+        return configurer;
     }
 }
