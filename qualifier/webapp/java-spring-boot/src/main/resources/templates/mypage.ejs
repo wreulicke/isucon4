@@ -19,17 +19,10 @@
         未読のお知らせが０件、残っています。
     </div>
 
-    <dl class="dl-horizontal">
-        <dt>前回ログイン</dt>
-        <dd id="last-logined-at"><%= dateFormat(createdAt) %></dd>
-        <dt>最終ログインIPアドレス</dt>
-        <dd id="last-logined-ip"><%= ip %></dd>
-    </dl>
+    <%- React.renderToString(React.createElement(MyPageLastLogin, {createdAt: createdAt, ip: ip})) %>
 
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <%= login %>
-        </div>
+        <%- React.renderToString(React.createElement(MyPageLogin, {login: login})) %>
         <div class="panel-body">
             <div class="row">
                 <div class="col-sm-4">

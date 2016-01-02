@@ -214,9 +214,12 @@ public class AppConfig {
         configurer.setEngineName("nashorn");
         configurer.setScripts("/static/js/polyfill.js",
                 "/static/js/lib/ejs.min-v2.3.4.js",
+                "/static/js/lib/react.min-v0.14.5.js",
                 "/static/js/lib/moment.min-v2.10.6.js",
                 "/static/js/render.js",
-                "/static/js/helper.js");
+                "/static/js/helper.js",
+                "/static/js/react/index.js",
+                "/static/js/react/mypage.js");
         configurer.setRenderFunction("render");
         configurer.setSharedEngine(false);
         return configurer;
