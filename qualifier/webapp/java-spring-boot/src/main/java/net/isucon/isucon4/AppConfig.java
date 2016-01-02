@@ -204,7 +204,7 @@ public class AppConfig {
     public ViewResolver reactViewResolver() {
         ScriptTemplateViewResolver viewResolver = new ScriptTemplateViewResolver();
         viewResolver.setPrefix("/templates/");
-        viewResolver.setSuffix(".hbs");
+        viewResolver.setSuffix(".ejs");
         return viewResolver;
     }
 
@@ -213,7 +213,7 @@ public class AppConfig {
         ScriptTemplateConfigurer configurer = new ScriptTemplateConfigurer();
         configurer.setEngineName("nashorn");
         configurer.setScripts("/static/js/polyfill.js",
-                "/static/js/lib/handlebars.min-v4.0.5.js",
+                "/static/js/lib/ejs.min-v2.3.4.js",
                 "/static/js/lib/moment.min-v2.10.6.js",
                 "/static/js/render.js",
                 "/static/js/helper.js");

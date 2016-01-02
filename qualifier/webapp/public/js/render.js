@@ -3,7 +3,7 @@ var templates = {};
 function render(template, model, url) {
     var compiledTemplate;
     if (templates[url] === undefined) {
-        compiledTemplate = Handlebars.compile(template);
+        compiledTemplate = ejs.compile(template);
         templates[url] = compiledTemplate;
     }
     else {
