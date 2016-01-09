@@ -25,22 +25,27 @@
 package net.isucon.isucon4.controller;
 
 import com.google.common.base.Strings;
+import jdk.nashorn.api.scripting.NashornScriptEngine;
+import net.isucon.isucon4.JavaScriptEngine;
 import net.isucon.isucon4.exception.BusinessException;
 import net.isucon.isucon4.model.Session;
 import net.isucon.isucon4.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/")
 public class LoginController {
+
+    JavaScriptEngine scriptEngine = new JavaScriptEngine();
 
     @Autowired
     Session session;
@@ -49,8 +54,20 @@ public class LoginController {
     LoginService loginService;
 
     @RequestMapping(method = RequestMethod.GET)
-    String index(Model model) {
-        return "index";
+    String index(ModelMap model) {
+        try {
+            NashornScriptEngine nashorn = scriptEngine.getEngineHolder().get();
+            Object markupMsg = nashorn.invokeFunction("renderIndexNoticeMessage", model.getOrDefault("msg", null));
+            Object markupLogin = nashorn.invokeFunction("renderIndexLogin", model.getOrDefault("login", null));
+            Object markupPassword = nashorn.invokeFunction("renderIndexPassword", model.getOrDefault("password", null));
+            model.addAttribute("markupMsg", markupMsg);
+            model.addAttribute("markupLogin", markupLogin);
+            model.addAttribute("markupPassword", markupPassword);
+
+            return "index";
+        } catch (ScriptException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
