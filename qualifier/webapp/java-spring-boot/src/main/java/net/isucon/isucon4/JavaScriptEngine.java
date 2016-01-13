@@ -13,7 +13,6 @@ public class JavaScriptEngine {
 
     private static final String[] SCRIPTS = new String[]{
             "static/js/polyfill.js",
-            "static/js/lib/ejs.min-v2.3.4.js",
             "static/js/lib/react.min-v0.14.5.js",
             "static/js/lib/moment.min-v2.10.6.js",
             "static/js/render.js",
