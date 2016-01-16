@@ -57,12 +57,12 @@ public class LoginController {
     String index(ModelMap model) {
         try {
             NashornScriptEngine nashorn = scriptEngine.getEngineHolder().get();
-            Object markupMsg = nashorn.invokeFunction("renderIndexNoticeMessage", model.getOrDefault("msg", null));
-            Object markupLogin = nashorn.invokeFunction("renderIndexLogin", model.getOrDefault("login", null));
-            Object markupPassword = nashorn.invokeFunction("renderIndexPassword", model.getOrDefault("password", null));
-            model.addAttribute("markupMsg", markupMsg);
-            model.addAttribute("markupLogin", markupLogin);
-            model.addAttribute("markupPassword", markupPassword);
+            Object markup = nashorn.invokeFunction(
+                    "renderIndexComponent",
+                    model.getOrDefault("msg", null),
+                    model.getOrDefault("login", null),
+                    model.getOrDefault("password", null));
+            model.addAttribute("markup", markup);
 
             return "index";
         } catch (ScriptException | NoSuchMethodException e) {

@@ -57,12 +57,12 @@ public class MyPageController {
 
         try {
             NashornScriptEngine nashorn = scriptEngine.getEngineHolder().get();
-            Object markupLastLogin = nashorn.invokeFunction("renderMyPageLastLogin",
+            Object markup = nashorn.invokeFunction(
+                    "renderMyPageComponent",
                     session.getLoginLog().getCreatedAt(),
-                    session.getLoginLog().getIp());
-            Object markupLogin = nashorn.invokeFunction("renderMyPageLogin", session.getLoginLog().getLogin());
-            model.addAttribute("markupLastLogin", markupLastLogin);
-            model.addAttribute("markupLogin", markupLogin);
+                    session.getLoginLog().getIp(),
+                    session.getLoginLog().getLogin());
+            model.addAttribute("markup", markup);
 
             return "mypage";
         } catch (ScriptException | NoSuchMethodException e) {

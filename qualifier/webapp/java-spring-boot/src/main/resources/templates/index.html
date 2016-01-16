@@ -9,36 +9,9 @@
 
 <body>
 <div id="content" layout:fragment="content">
-    <div id="be-careful-phising" class="panel panel-danger">
-        <div class="panel-heading">
-            <span class="hikaru-mozi">偽画面にご注意ください！</span>
-        </div>
-        <div class="panel-body">
-            <p>偽のログイン画面を表示しお客様の情報を盗み取ろうとする犯罪が多発しています。</p>
 
-            <p>ログイン直後にダウンロード中や、見知らぬウィンドウが開いた場合、<br/>すでにウィルスに感染している場合がございます。即座に取引を中止してください。</p>
+    <div th:remove="tag" th:utext="${markup}"/>
 
-            <p>また、残高照会のみなど、必要のない場面で乱数表の入力を求められても、<br/>絶対に入力しないでください。</p>
-        </div>
-    </div>
-
-    <div class="page-header">
-        <h1>ログイン</h1>
-    </div>
-
-    <div th:remove="tag" th:if="${msg}" th:utext="${markupMsg}"/>
-
-    <div class="container">
-        <form class="form-horizontal" role="form" action="/login" method="POST">
-            <div th:remove="tag" th:utext="${markupLogin}"></div>
-            <div th:remove="tag" th:utext="${markupPassword}"></div>
-            <div class="form-group">
-                <div class="col-sm-offset-3 col-sm-9">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">ログイン</button>
-                </div>
-            </div>
-        </form>
-    </div>
 </div>
 </body>
 </html>
