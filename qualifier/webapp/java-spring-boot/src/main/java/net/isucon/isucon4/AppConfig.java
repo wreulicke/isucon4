@@ -61,25 +61,25 @@ public class AppConfig {
     @Autowired
     DataSourceProperties properties;
 
-    /**
-     * Tomcat JDBC Connection Pool
-     */
-    @Bean(destroyMethod = "close")
-    public DataSource dataSource() {
-
-        org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
-        ds.setDriverClassName(properties.getDriverClassName());
-        ds.setUrl(properties.getUrl());
-        ds.setUsername(properties.getUsername());
-        ds.setPassword(properties.getPassword());
-        ds.setDefaultAutoCommit(false);
-        ds.setInitialSize(initialSize);
-        ds.setMinIdle(minIdle);
-        ds.setMaxIdle(maxIdle);
-        ds.setMaxActive(maxActive);
-
-        return ds;
-    }
+//    /**
+//     * Tomcat JDBC Connection Pool
+//     */
+//    @Bean(destroyMethod = "close")
+//    public DataSource dataSource() {
+//
+//        org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
+//        ds.setDriverClassName(properties.getDriverClassName());
+//        ds.setUrl(properties.getUrl());
+//        ds.setUsername(properties.getUsername());
+//        ds.setPassword(properties.getPassword());
+//        ds.setDefaultAutoCommit(false);
+//        ds.setInitialSize(initialSize);
+//        ds.setMinIdle(minIdle);
+//        ds.setMaxIdle(maxIdle);
+//        ds.setMaxActive(maxActive);
+//
+//        return ds;
+//    }
 
 //    /**
 //     * HikariCP
@@ -139,8 +139,8 @@ public class AppConfig {
 //    }
 
     @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new DataSourceTransactionManager(dataSource());
+    public PlatformTransactionManager transactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
     }
 
     @Bean

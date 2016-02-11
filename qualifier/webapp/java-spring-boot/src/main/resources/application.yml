@@ -1,6 +1,3 @@
 spring:
   datasource:
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/isu4_qualifier?characterEncoding=utf8
-    username: isucon
-    password: isucon
+    jndi-name: java:comp/env/jdbc/Isucon
