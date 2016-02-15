@@ -1,0 +1,54 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/flosch/pongo2",
+			"repository": "https://github.com/flosch/pongo2",
+			"revision": "a269242022ae534b052672d6a9326a40560a63e7",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/go-sql-driver/mysql",
+			"repository": "https://github.com/go-sql-driver/mysql",
+			"revision": "267b128680c46286b9ca13475c3cca5de8f79bd7",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/goji/param",
+			"repository": "https://github.com/goji/param",
+			"revision": "da86c81e3e3c23b1948bc7a003d381250a032aa7",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/gorilla/context",
+			"repository": "https://github.com/gorilla/context",
+			"revision": "1c83b3eabd45b6d76072b66b746c20815fb2872d",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/gorilla/securecookie",
+			"repository": "https://github.com/gorilla/securecookie",
+			"revision": "e95799a481bbcc3d01c2ad5178524cb8bec9f370",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/gorilla/sessions",
+			"repository": "https://github.com/gorilla/sessions",
+			"revision": "715060ac0b7d99d95d1600df329f5da94809023a",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/zenazn/goji",
+			"repository": "https://github.com/zenazn/goji",
+			"revision": "859bfa93a8db583de1dd72a1edcbf4bb75c0dbbe",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/zenazn/goji/web",
+			"repository": "https://github.com/zenazn/goji",
+			"revision": "859bfa93a8db583de1dd72a1edcbf4bb75c0dbbe",
+			"branch": "master",
+			"path": "/web"
+		}
+	]
+}
