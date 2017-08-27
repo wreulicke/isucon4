@@ -1,0 +1,12 @@
+mysql:
+  image: mysql:5.6.37
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_DATABASE: isu4_qualifier
+    MYSQL_ROOT_PASSWORD: isucon
+    MYSQL_USER: isucon
+    MYSQL_PASSWORD: isucon
+  volumes:
+    - ./docker-volumes/mysql/conf.d:/etc/mysql/conf.d
+    - ./docker-volumes/mysql/lib:/var/lib/mysql
