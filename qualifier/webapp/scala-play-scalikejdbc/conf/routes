@@ -1,0 +1,11 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET         /                         controllers.LoginController.index
+POST        /login                    controllers.LoginController.login
+GET         /mypage                   controllers.MyPageController.index
+GET         /report                   controllers.ReportController.report
+
+GET         /images/*file             controllers.Assets.versioned(path="/public/images", file: Asset)
+GET         /stylesheets/*file        controllers.Assets.versioned(path="/public/stylesheets", file: Asset)
