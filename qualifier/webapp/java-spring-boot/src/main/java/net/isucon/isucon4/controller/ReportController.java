@@ -25,7 +25,6 @@
 package net.isucon.isucon4.controller;
 
 import net.isucon.isucon4.service.ReportService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,12 +32,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/report")
+@RequiredArgsConstructor
 public class ReportController {
 
-    @Autowired
-    ReportService reportService;
+    private final ReportService reportService;
 
     @RequestMapping(method = RequestMethod.GET)
     public Map<String, List<String>> report() {

@@ -32,7 +32,6 @@ import net.isucon.isucon4.exception.BusinessCommitException;
 import net.isucon.isucon4.exception.BusinessException;
 import net.isucon.isucon4.repository.LoggingRepository;
 import net.isucon.isucon4.repository.LoginRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,18 +40,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class LoginService {
 
-    @Autowired
-    ThresholdConfig thresholdConfig;
+    private final ThresholdConfig thresholdConfig;
 
-    @Autowired
-    LoginRepository loginRepository;
+    private final LoginRepository loginRepository;
 
-    @Autowired
-    LoggingRepository loggingRepository;
+    private final LoggingRepository loggingRepository;
 
     @Transactional(noRollbackFor = BusinessCommitException.class)
     public LoginLog attemptLogin(String login, String password, String ip) {

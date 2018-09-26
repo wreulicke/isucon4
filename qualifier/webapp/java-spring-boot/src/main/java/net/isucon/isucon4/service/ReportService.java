@@ -27,7 +27,6 @@ package net.isucon.isucon4.service;
 import net.isucon.isucon4.ThresholdConfig;
 import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.repository.ReportRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,15 +35,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ReportService {
 
-    @Autowired
-    ThresholdConfig thresholdConfig;
+    private final ThresholdConfig thresholdConfig;
 
-    @Autowired
-    ReportRepository reportRepository;
+    private final ReportRepository reportRepository;
 
     public Map<String, List<String>> getReport() {
 

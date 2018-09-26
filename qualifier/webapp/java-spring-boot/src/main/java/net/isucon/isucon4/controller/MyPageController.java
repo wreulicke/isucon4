@@ -24,9 +24,10 @@
 
 package net.isucon.isucon4.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.google.common.base.Strings;
 import net.isucon.isucon4.model.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,10 +36,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/mypage")
+@RequiredArgsConstructor
 public class MyPageController {
 
-    @Autowired
-    Session session;
+    private final Session session;
 
     @RequestMapping(method = RequestMethod.GET)
     String index(ModelMap model, RedirectAttributes attributes) {

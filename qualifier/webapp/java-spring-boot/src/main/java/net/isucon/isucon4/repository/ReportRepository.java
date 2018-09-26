@@ -26,7 +26,6 @@ package net.isucon.isucon4.repository;
 
 import net.isucon.isucon4.Pair;
 import net.isucon.isucon4.entity.LoginLog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -36,11 +35,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 @Repository
+@RequiredArgsConstructor
 public class ReportRepository {
 
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
+    
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     RowMapper<LoginLog> rowLoginLogMapper = new BeanPropertyRowMapper<>(LoginLog.class);
 
