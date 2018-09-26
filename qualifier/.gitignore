@@ -1,1 +1,7 @@
 /docker-volumes/mysql/lib
+.factorypath
+.settings/
+.classpath
+.project
+.gradle/
+.class
