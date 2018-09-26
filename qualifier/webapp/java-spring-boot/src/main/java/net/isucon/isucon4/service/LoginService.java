@@ -24,6 +24,8 @@
 
 package net.isucon.isucon4.service;
 
+import com.google.common.base.Strings;
+import com.google.common.hash.Hashing;
 import com.google.common.primitives.Bytes;
 import net.isucon.isucon4.ThresholdConfig;
 import net.isucon.isucon4.entity.LoginLog;
@@ -41,6 +43,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.buf.HexUtils;
 
 @Service
 @Transactional
@@ -91,20 +94,9 @@ public class LoginService {
     }
 
     String calculatePasswordHash(String password, String salt) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.reset();
-            String v = String.format("%s:%s", password, salt);
-            md.update(v.getBytes(StandardCharsets.UTF_8));
-            byte[] digest = md.digest();
-
-            StringBuilder sb = Bytes.asList(digest).stream()
-                    .map(b -> String.format("%02x", b))
-                    .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append);
-
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        return Hashing.sha256().newHasher().putString(password, StandardCharsets.UTF_8)
+            .putString(":", StandardCharsets.UTF_8)
+            .putString(salt, StandardCharsets.UTF_8)
+            .hash().toString();
     }
 }

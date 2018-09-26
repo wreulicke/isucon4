@@ -24,20 +24,28 @@
 
 package net.isucon.isucon4.service;
 
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.nio.charset.StandardCharsets;
+
+import org.junit.Test;
+
+import com.google.common.hash.Hashing;
+
 public class LoginServiceTest {
-
-    // LoginService sut = new LoginService();
-
-    //    @Test
-    //    public void ハッシュのテスト() throws Exception {
-    //        String password = "isuconpass1";
-    //        String salt = "salt1";
-    //        String actual = sut.calculatePasswordHash(password, salt);
-    //        assertThat(actual, is("6d7de4d284887f04c5a1d9e3431e9d7865a88bb6a7eab73ea6a22ac2d51d4db0"));
-    //    }
+	
+	// LoginService sut = new LoginService();
+	
+	@Test
+	public void ハッシュのテスト() throws Exception {
+		String password = "isuconpass1";
+		String salt = "salt1";
+		String actual = Hashing.sha256().newHasher().putString(password, StandardCharsets.UTF_8)
+			.putString(":", StandardCharsets.UTF_8)
+			.putString(salt, StandardCharsets.UTF_8)
+			.hash().toString();
+		assertThat(actual, is("6d7de4d284887f04c5a1d9e3431e9d7865a88bb6a7eab73ea6a22ac2d51d4db0"));
+	}
+	
 }
