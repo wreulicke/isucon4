@@ -24,7 +24,6 @@
 
 package net.isucon.isucon4.service;
 
-import javafx.util.Pair;
 import net.isucon.isucon4.ThresholdConfig;
 import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.repository.ReportRepository;
@@ -54,8 +53,8 @@ public class ReportService {
         List<LoginLog> bannedIpsLastSucceeds = reportRepository.getBannedIpsLastSucceed();
         List<String> filteredIps = bannedIpsLastSucceeds.stream()
                 .map(reportRepository::getBannedIpsLastSucceedCounts)
-                .filter(pair -> pair.getValue() >= thresholdConfig.getIpBann())
-                .map(Pair::getKey)
+                .filter(pair -> pair._2 >= thresholdConfig.getIpBann())
+                .map(pair -> pair._1)
                 .collect(Collectors.toList());
         List<String> ipList = ips.stream()
                 .map(LoginLog::getIp)
@@ -67,8 +66,8 @@ public class ReportService {
         List<LoginLog> lockedUsersLastSucceeds = reportRepository.getLockedUsersLastSucceed();
         List<String> filteredUsers = lockedUsersLastSucceeds.stream()
                 .map(reportRepository::getLockedUsersLastSucceedCounts)
-                .filter(pair -> pair.getValue() >= thresholdConfig.getUserLock())
-                .map(Pair::getKey)
+                .filter(pair -> pair._2 >= thresholdConfig.getUserLock())
+                .map(pair -> pair._1)
                 .collect(Collectors.toList());
         List<String> userList = loginLogs.stream()
                 .map(LoginLog::getLogin)

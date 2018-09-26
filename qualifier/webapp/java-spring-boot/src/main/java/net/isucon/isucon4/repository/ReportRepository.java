@@ -24,7 +24,7 @@
 
 package net.isucon.isucon4.repository;
 
-import javafx.util.Pair;
+import net.isucon.isucon4.Pair;
 import net.isucon.isucon4.entity.LoginLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
