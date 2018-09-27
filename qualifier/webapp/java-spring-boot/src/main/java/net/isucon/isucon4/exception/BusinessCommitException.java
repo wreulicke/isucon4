@@ -26,10 +26,6 @@ package net.isucon.isucon4.exception;
 
 public class BusinessCommitException extends BusinessException {
 
-    public BusinessCommitException(BusinessException e) {
-        this(e.getMessage());
-    }
-
     public BusinessCommitException(String message) {
         super(message);
     }

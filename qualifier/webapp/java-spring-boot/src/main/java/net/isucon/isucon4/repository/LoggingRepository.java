@@ -24,8 +24,11 @@
 
 package net.isucon.isucon4.repository;
 
+import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -33,17 +36,19 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 
+import lombok.RequiredArgsConstructor;
+
 @Repository
+@RequiredArgsConstructor
 public class LoggingRepository {
 
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     public void create(boolean succeeded, String login, String ip, User user) {
-
         Integer userId = user != null ? user.getId() : null;
+        Date date = new Date();
         SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("createdAt", new Date())
+                .addValue("createdAt", date)
                 .addValue("userId", userId)
                 .addValue("login", login)
                 .addValue("ip", ip)

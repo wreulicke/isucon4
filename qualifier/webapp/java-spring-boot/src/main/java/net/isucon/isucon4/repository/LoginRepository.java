@@ -27,6 +27,7 @@ package net.isucon.isucon4.repository;
 import net.isucon.isucon4.entity.LoginLog;
 import net.isucon.isucon4.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -38,16 +39,19 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
+
 @Repository
+@RequiredArgsConstructor
 public class LoginRepository {
 
-    @Autowired
-    NamedParameterJdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     RowMapper<User> rowMapper = new BeanPropertyRowMapper<>(User.class);
 
     RowMapper<LoginLog> rowIpLastSucceedsMapper = new BeanPropertyRowMapper<>(LoginLog.class);
-
+    
+    @Cacheable("user")
     public Optional<User> findUserByLogin(String login) {
 
         SqlParameterSource param = new MapSqlParameterSource()

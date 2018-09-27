@@ -24,14 +24,12 @@
 
 package net.isucon.isucon4.exception;
 
-import lombok.Getter;
-
 public class BusinessException extends RuntimeException {
 
-    @Getter
     String message;
 
     public BusinessException(String message) {
+        super(message, null, true, false);
         this.message = message;
     }
 }

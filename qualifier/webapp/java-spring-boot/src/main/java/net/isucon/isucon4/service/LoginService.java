@@ -63,16 +63,17 @@ public class LoginService {
                 .orElseThrow(() -> new BusinessCommitException("Wrong username or password"));
 
         try {
-            checkIpBanned(ip);
-            checkUserLocked(user);
-
             String hash = calculatePasswordHash(password, user.getSalt());
             if (Objects.equals(user.getPasswordHash(), hash)) {
-                loggingRepository.create(true, login, ip, user);
-                return loginRepository.findLoginLogByUserId(user.getId());
             } else {
                 throw new BusinessCommitException("Wrong username or password");
             }
+            
+            checkIpBanned(ip);
+            checkUserLocked(user);
+    
+            loggingRepository.create(true, login, ip, user);
+            return loginRepository.findLoginLogByUserId(user.getId());
         } catch (BusinessException e) {
             loggingRepository.create(false, login, ip, user);
             throw e;

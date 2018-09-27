@@ -8,6 +8,10 @@ buildscript {
 	}
 }
 
+ext {
+    springBootVersion = "1.5.16.RELEASE"
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: "org.springframework.boot"
@@ -29,13 +33,17 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version:'1.5.16.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version:"$springBootVersion"
     compile (group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version:'1.5.16.RELEASE') {
         exclude(module: 'thymeleaf-layout-dialect')
     }
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version:'1.5.16.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version:'1.5.16.RELEASE'
     compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.47'
     compile group: 'com.google.guava', name: 'guava', version:'18.0'
+    
+    compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.6.2'
+
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version:'1.16.6'
     compileOnly group: 'org.projectlombok', name: 'lombok', version:'1.16.6'
